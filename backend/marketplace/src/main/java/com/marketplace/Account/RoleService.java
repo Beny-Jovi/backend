@@ -9,12 +9,6 @@ import org.springframework.stereotype.Service;
 public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
-
-    // save role
-    // get roll
-    // add role
-    // delete role
-    // get and create 
     
     public void saveRole(Role role) {
         Objects.requireNonNull(role);
@@ -24,15 +18,26 @@ public class RoleService {
     public Role getOrCreateRoleAccount(RoleEnum roleEnum) {
         Role role = roleRepository.findAll()
             .stream()
-            .filter(roleName -> roleName.getRoleName().equals(roleEnum.name()))
+            .filter(roleName -> roleName.getRoleName().equals(roleEnum))
             .findAny()
             .orElse(null);
         if (role == null) {
-            Role newRole = new Role(roleEnum.name());
+            Role newRole = new Role(roleEnum);
             saveRole(newRole);
             return newRole;
         }
         return role;
+    }
+
+    public void DeleteRole(String roleId) {
+        Role foundRole = roleRepository.findAll()
+        .stream()
+        .filter(role -> role.getId().equals(roleId))
+        .findAny()
+        .orElse(null);
+        if (foundRole != null) {
+            roleRepository.delete(foundRole);
+        }
     }
 
 }

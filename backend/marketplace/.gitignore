@@ -34,3 +34,6 @@ build/
 
 # properties
 env.properties
+
+# logs
+logs

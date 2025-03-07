@@ -1,10 +1,11 @@
-package com.marketplace.Account;
+package com.marketplace.Store;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+// import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,10 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.OneToMany;
+// import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -25,7 +24,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "`Account`")
 @Getter @Setter @NoArgsConstructor
-public class Seller {
+public class Account {
     
     @SuppressWarnings("deprecation")
     @Id
@@ -53,39 +52,17 @@ public class Seller {
     @Column(name = "number_of_stores", nullable = false)
     private int numberOfStores = 0;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
-    @JoinTable(
-        name = "`Account_Role`",
-        joinColumns = @JoinColumn(name = "Account_id"),
-        inverseJoinColumns = @JoinColumn(name="role_id")
-    )
-    private Set<Role> accountRoles;
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Store> stores = new HashSet<Store>();
 
-    public Seller(String email, String name, String password, Set<Role> sellerRoles) {
-        this.setEmail(email);
-        this.setName(name);
-        this.password = this.doEncryptPassword(password);
-        this.setAccountRoles(sellerRoles);
-    }
-
-    public void addRole(Role role) {
-        accountRoles.add(role);
-    }
-
-    @PrePersist
-    public void beforePersist() {
-        LocalDateTime currentTime = LocalDateTime.now();
-        this.setAccountCreatedTimes(currentTime);
-        this.setAccountUpdatedTimes(currentTime);
+    public void addStores(Store store) {
+        stores.add(store);
     }
 
     @PreUpdate
-    public void beforeUpdate() {
+    private void beforeupdate() {
         this.setAccountUpdatedTimes(LocalDateTime.now());
     }
 
-    public String doEncryptPassword(String sellerPassword) {
-        return BCrypt.hashpw(sellerPassword, BCrypt.gensalt(10));
-    }
 
 }

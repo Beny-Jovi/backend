@@ -7,22 +7,22 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Mapper {
+public class SellerMapper {
     
-    public AccountDTO toAccountDto(Seller seller) {
+    public SellerAccountDTO toAccountDto(Seller seller) {
         String name = seller.getName();
         String email = seller.getEmail();
 
-        Set<String> roles = seller
+        Set<RoleEnum> roles = seller
             .getAccountRoles()
             .stream()
             .map(Role::getRoleName)
             .collect(Collectors.toSet());
-        return new AccountDTO(name, email, roles);
+        return new SellerAccountDTO(email, name, roles);
     }
 
-    public Seller toSellerAccount(AccountCreationDTO accountDTO) {
-        return new Seller(accountDTO.getSellerEmail(), accountDTO.getSellerName(), accountDTO.getSellerPassword(), new HashSet<Role>());
+    public Seller toSellerAccount(SellerAccountCreationDTO accountDTO) {
+        return new Seller(accountDTO.email(), accountDTO.name(), accountDTO.password(), new HashSet<Role>());
     }
 
 }
