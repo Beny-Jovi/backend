@@ -2,9 +2,15 @@ package com.marketplace.Account;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
 public class SellerService {
     // Save seller
     // get all seller
@@ -18,41 +24,35 @@ public class SellerService {
         return sellerRepository.findAll();
     }
 
-    public Seller getSellerById(String sellereId) {
-        return getAllSeller()
-            .stream()
-            .filter(seller -> seller.getId().equals(sellereId))
-            .findAny()
-            .orElse(null);
+    public Optional<Seller> getSellerById(String sellerId) {
+        return sellerRepository.findById(sellerId);
     }
 
-    public Boolean isTheSellerThere(String id) {
-        return getAllSeller().stream()
-            .anyMatch(seller -> seller.getId().contains(id));
-    }
+    // public Boolean isTheSellerThere(String id) {
+    //     return getAllSeller().stream()
+    //         .anyMatch(seller -> seller.getId().contains(id));
+    // }
 
     public void saveSeller(Seller seller) {
         Objects.requireNonNull(seller);
         sellerRepository.save(seller);
     }
 
-    public Seller updateSeller(String id, AccountUpdateDTO accountDto) {
-        Seller foundSellerById = getSellerById(id);
-        foundSellerById.setEmail(accountDto.getEmail());
-        foundSellerById.setName(accountDto.getName());
-        sellerRepository.save(foundSellerById);
-        return foundSellerById;
+    public Seller updateSeller(Seller foundSeller, SellerAccountUpdateDTO accountDto) {
+        log.info("The email is: {} - the name is: {}", accountDto.email(), accountDto.name());
+        foundSeller.setEmail(accountDto.email());
+        foundSeller.setName(accountDto.name());
+        sellerRepository.save(foundSeller);
+        return foundSeller;
     }
 
-    public void updateSellerPassword(String id, AccountUpdatePasswordDTO accountDto) {
-        Seller foundSellerById = getSellerById(id);
-        foundSellerById.setPassword(foundSellerById.doEncryptPassword(accountDto.getPassword()));
-        sellerRepository.save(foundSellerById);
+    public void updateSellerPassword(Seller foundSeller, SellerAccountUpdatePasswordDTO accountDto) {
+        foundSeller.setPassword(foundSeller.doEncryptPassword(accountDto.password()));
+        sellerRepository.save(foundSeller);
     }
 
-    public void deleteSellerById(String id) {
-        Seller founSellerById = getSellerById(id);
-        sellerRepository.delete(founSellerById);
+    public void deleteSellerById(Seller foundSeller) {
+        sellerRepository.delete(foundSeller);
     }
 
     public Boolean checkSellerByEmail(String email) {
@@ -60,11 +60,10 @@ public class SellerService {
             .anyMatch(seller -> seller.getEmail().contains(email));
     }
 
-    public Seller getSellerByEmail(String email) {
+    public Optional<Seller> getSellerByEmail(String email) {
         return getAllSeller().stream()
             .filter(seller -> seller.getEmail().equals(email))
-            .findAny()
-            .orElse(null);
+            .findAny();
     }
 
     
