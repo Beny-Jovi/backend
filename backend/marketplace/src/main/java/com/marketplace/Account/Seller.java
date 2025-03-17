@@ -1,10 +1,11 @@
 package com.marketplace.Account;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+
+import com.marketplace.Util.Auditable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,17 +16,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "`Account`")
+@Table(name = "`Accounts`")
 @Getter @Setter @NoArgsConstructor
-public class Seller {
+public class Seller extends Auditable {
     
     @SuppressWarnings("deprecation")
     @Id
@@ -44,18 +43,12 @@ public class Seller {
     @Column(name = "password", length = 200, nullable = false)
     private String password;
 
-    @Column(name = "account_created_times", nullable = false, updatable = false)
-    private LocalDateTime accountCreatedTimes;
-
-    @Column(name = "account_updated_times", nullable = false)
-    private LocalDateTime accountUpdatedTimes;
-
     @Column(name = "number_of_stores", nullable = false)
     private int numberOfStores = 0;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST })
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
-        name = "`Account_Role`",
+        name = "`Accounts_Roles`",
         joinColumns = @JoinColumn(name = "Account_id"),
         inverseJoinColumns = @JoinColumn(name="role_id")
     )
@@ -70,18 +63,6 @@ public class Seller {
 
     public void addRole(Role role) {
         accountRoles.add(role);
-    }
-
-    @PrePersist
-    public void beforePersist() {
-        LocalDateTime currentTime = LocalDateTime.now();
-        this.setAccountCreatedTimes(currentTime);
-        this.setAccountUpdatedTimes(currentTime);
-    }
-
-    @PreUpdate
-    public void beforeUpdate() {
-        this.setAccountUpdatedTimes(LocalDateTime.now());
     }
 
     public String doEncryptPassword(String sellerPassword) {

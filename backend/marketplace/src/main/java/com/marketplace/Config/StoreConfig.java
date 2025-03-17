@@ -1,7 +1,11 @@
-package com.marketplace.Store;
+package com.marketplace.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.marketplace.Store.AccountService;
+import com.marketplace.Store.StoreMapper;
+import com.marketplace.Store.StoreService;
 
 @Configuration
 public class StoreConfig {

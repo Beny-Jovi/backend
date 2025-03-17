@@ -1,7 +1,9 @@
-package com.marketplace.Store;
+package com.marketplace.Etalation;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AccountRepostiory extends JpaRepository<Account, String> {}
+public interface EtalationRepository extends JpaRepository<Etalation, String> {
+    
+}

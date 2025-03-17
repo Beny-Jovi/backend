@@ -66,5 +66,8 @@ public class SellerService {
             .findAny();
     }
 
+    public AccountProjection getEmailAndName(String id) {
+        return sellerRepository.findAccountEmailAndName(id);
+    }
     
 }

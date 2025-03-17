@@ -1,7 +1,11 @@
-package com.marketplace.Account;
+package com.marketplace.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.marketplace.Account.RoleService;
+import com.marketplace.Account.SellerMapper;
+import com.marketplace.Account.SellerService;
 
 @Configuration
 public class SellerAccountConfig {

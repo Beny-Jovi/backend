@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 public class StoreMapper {
     
     public Store toStore(StoreRequestDTO storeDto) {
-        return new Store(storeDto.storeName(), storeDto.storeOperatingTimeStart(), storeDto.storeOperatingTimeEnd(), "");
+        return new Store(storeDto.storeName(), storeDto.operatingTimeStart(), storeDto.operatingTimeEnd(), "");
     }
 
     public StoreDto toStoreDto(Store store) {
-        return new StoreDto(store.getStoreName(), store.getStoreRate(), store.getStoreOperatingHoursStart(), store.getStoreOperatingHoursEnd(), store.getStoreStatus(), store.getNumberOfSales());
+        return new StoreDto(store.getName(), store.getRate(), store.getOperatingHoursStart(), store.getOperatingHoursEnd(), store.getStoreStatus(), store.getNumberOfSales());
     }
 
 }
