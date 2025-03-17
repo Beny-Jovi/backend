@@ -38,7 +38,7 @@ public class StoreAccountController {
         this.mapper = mapper;
     }
 
-    @GetMapping("/seller/store")
+    @GetMapping("/sellers/stores")
     public ResponseEntity<List<StoreDto>> getAllStores() {
         List<StoreDto> stores = storeService.getAllStores()
             .stream()
@@ -48,39 +48,65 @@ public class StoreAccountController {
         return ResponseEntity.ok().body(stores);
     }
 
+    @GetMapping("/sellers/{seller_id}/stores")
+    public ResponseEntity<Object> getAllStoresWithAnAccount(@PathVariable("seller_id") String sellerId) {
+        log.info("Get initialize /api/sellers/{seller_id}/stores");
+        Account accounts = accountService.getAccountById(sellerId)
+            .orElseThrow(() -> new ResourceNotFoundException("resource not found"));
+        List<StoreDto> storesDtos = accounts.getStores().stream()
+            .map(mapper::toStoreDto)
+            .collect(Collectors.toList());
+        log.info("Get initialize /api/sellers/{seller_id}/stores" + storesDtos);
+        // List<StoreProjection> storesDtos = accountService.getStoresByAccountId(sellerId);
+        return ResponseHandler.generateResponse("Get the stores from the sellers", HttpStatus.OK, storesDtos);
+
+    }
+
     // let's keep it to this way first with {sellerId} stuff
-    @PostMapping("/{seller_id}/store")
+    @PostMapping("/sellers/{seller_id}/stores")
     public ResponseEntity<Object> createStore(@PathVariable("seller_id") String sellerId, @RequestBody @Valid StoreRequestDTO storeDto) {
-        log.info("Post /api/sellerId store name doesn't have any conflict: {}", storeDto.storeName());
+        log.info("Post /api/sellers/sellerId/stores store name doesn't have any conflict: {}", storeDto.storeName());
         Account account = accountService.getAccountById(sellerId)
             .orElseThrow(() -> new ResourceNotFoundException("Seller with this id is not found " + sellerId));
         if (storeService.hasStoreNameSame(storeDto.storeName())) {
             throw new ResourceFoundException("Store name has already been taken");
         }
-        log.info("Post /api/sellerId find based on seller id: {}", "the seller is: {}", sellerId, account);
+        log.info("Post /api/sellers/sellerId/stores find based on seller id: {}", "the seller is: {}", sellerId, account);
         Store createdStore = mapper.toStore(storeDto);
-        log.info("Post /api/sellerId created store is: {}", createdStore);
+        log.info("Post /api/sellers/sellerId/stores created store is: {}", createdStore);
         accountService.addNumberOfStores(account);
         account.addStores(createdStore);
 
         createdStore.setAccount(account);
-        log.trace("Post /api/sellerId save account: {}", account);
-
-        // storeService.saveStore(createdStore);
+        log.trace("Post /api/sellers/sellerId/stores save account: {}", account);
+        
         accountService.saveAccount(account);
         StoreDto parseToStoreDto = mapper.toStoreDto(createdStore);
-        // return ResponseEntity.ok().body(parseToStoreDto);
         return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, parseToStoreDto);
     }
 
-    @PutMapping("/{seller_id}/{store_id}")
+    @GetMapping("/sellers/{seller_id}/stores/{store_id}")
+    public ResponseEntity<Object> getStore(@PathVariable("seller_id") String sellerId, @PathVariable("store_id") String storeId) {
+        log.info("Get /seller/{seller_id}/stores/{store_id} find based on seller id: {}", "find based on store id: {}", sellerId, storeId);
+        Boolean isSellerAccountThere = accountService.isAccountThere(sellerId);
+        if (!isSellerAccountThere) {
+            throw new ResourceNotFoundException("Store Not found with this id");
+        }
+        Store foundStore = storeService.getStoreById(storeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Store with this id not found"+ storeId));
+        StoreDto storeOutput = mapper.toStoreDto(foundStore);
+        return ResponseHandler.generateResponse("Get Store", HttpStatus.OK, storeOutput);
+
+    }
+
+    @PutMapping("/sellers/{seller_id}/stores/{store_id}")
     public ResponseEntity<Object> updateStore(@PathVariable("seller_id") String sellerId, @PathVariable("store_id") String storeId, @RequestBody @Valid StoreRequestDTO storeDto) {
-        log.info("Put /{seller_id}/{store_id} find based on seller id: {}", "find based on store id: {}", sellerId, storeId);
+        log.info("Put /sellers/{seller_id}/stores/{store_id} find based on seller id: {}", "find based on store id: {}", sellerId, storeId);
         Boolean checkAccount = accountService.isAccountThere(sellerId);
         if (!checkAccount) {
             throw new ResourceFoundException("there is no account with this id");
         }
-        log.info("Put /{seller_id}/{store_id} passed the checking test");
+        log.info("Put /sellers/{seller_id}/stores/{store_id} passed the checking test");
         Store foundStore = storeService.getStoreById(storeId)
             .orElseThrow(() -> new ResourceNotFoundException("store with this id not found "+ storeId));
         if (storeService.hasStoreNameSame(storeDto.storeName())) {
@@ -88,12 +114,12 @@ public class StoreAccountController {
         }
         Store updatedStore = storeService.updateStore(foundStore, storeDto);
         StoreDto storeOutput = mapper.toStoreDto(updatedStore);
-        log.info("Put /{seller_id}/{store_id} success for update the store");
+        log.info("Put /sellers/{seller_id}/stores/{store_id} success for update the store");
         return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, storeOutput);
         
     }
 
-    @DeleteMapping("/{seller_id}/{store_id}")
+    @DeleteMapping("/sellers/{seller_id}/stores/{store_id}")
     public ResponseEntity<Object> deleteStore(@PathVariable("seller_id") String sellerId, @PathVariable("store_id") String storeId) {
         Boolean checkAccount = accountService.isAccountThere(sellerId);
         if (!checkAccount) {
@@ -102,8 +128,14 @@ public class StoreAccountController {
         Store foundStore = storeService.getStoreById(storeId)
             .orElseThrow(() -> new ResourceNotFoundException("store with this id not found "+ storeId));
         storeService.deleteStoreById(foundStore);    
-        return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, "store has been deleted");
+        return ResponseHandler.generateResponse("Store Deleted", HttpStatus.CREATED, "store has been deleted");
     }
+
+    // @GetMapping("/stores/test")
+    // public ResponseEntity<Object> testAccountQuery() {
+    //     List<StoreAccountProjection> output = accountService.getAllAccount();
+    //     return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, output);
+    // }
 
 
     // @GetMapping("/name")

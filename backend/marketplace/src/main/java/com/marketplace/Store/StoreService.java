@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 // v3/api/seller/store
 // v3/api/seller/store/id -> get
 
-@Service
+@Service("storeService")
 public class StoreService {
     
     @Autowired
     private StoreRepository storeRepository;
 
     public Store updateStore(Store foundStore, StoreRequestDTO storeDto) {
-        foundStore.setStoreName(storeDto.storeName());
-        foundStore.setStoreOperatingHoursStart(storeDto.storeOperatingTimeStart());
+        foundStore.setName(storeDto.storeName());
+        foundStore.setOperatingHoursStart(storeDto.operatingTimeStart());
         // foundStore.setStoreLogoPath(storeDto.storeLogoPath());
         storeRepository.save(foundStore);
         return foundStore;
@@ -43,8 +43,16 @@ public class StoreService {
 
     public Boolean hasStoreNameSame(String storeName) {
         return getAllStores().stream()
-            .anyMatch(store -> store.getStoreName().contains(storeName));
+            .anyMatch(store -> store.getName().contains(storeName));
     }
+
+    public List<StoreProjection> getStoresNameAndRate() {
+        return storeRepository.findStoresNameAndRate();
+    }
+
+    // public List<StoreProjection> findStoresById(String accountId) {
+    //     return storeRepository.findStoresByAccountId(accountId);
+    // }
 
     // public Boolean isThereAStore(String id) {
     //     return getAllStores().stream()

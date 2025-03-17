@@ -1,26 +1,24 @@
-package com.marketplace.Account;
-
-import java.util.Set;
+package com.marketplace.Etalation;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.marketplace.Util.Auditable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
-@Table(name = "`Roles`")
+@Entity(name = "EtalationOfTheStores")
+@Table(name = "`Etalations`")
 @Getter @Setter @NoArgsConstructor
-
-public class Role {
+public class Etalation extends Auditable {
     
     @SuppressWarnings("deprecation")
     @Id
@@ -30,19 +28,15 @@ public class Role {
     )
     private String id;
 
-    @Column(name = "role_name", length = 50, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private RoleEnum roleName;
+    @Column(name = "etalation_name", length = 150, nullable = false)
+    private String etalationName;
 
-    @ManyToMany(mappedBy = "accountRoles")
-    private Set<Seller> sellers;
+    @ManyToOne
+    @JoinColumn(name = "store_id", nullable = false, referencedColumnName = "id")
+    private Store store;
 
-    public Role(RoleEnum roleName) {
-        this.setRoleName(roleName);
-    }
-
-    public void addSellerToRole(Seller seller) {
-        sellers.add(seller);
+    public Etalation(String etalationName) {
+        this.setEtalationName(etalationName);
     }
 
 }

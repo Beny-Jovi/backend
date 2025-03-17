@@ -20,15 +20,21 @@ import com.marketplace.Exception.ResourceFoundException;
 import com.marketplace.Exception.ResourceNotFoundException;
 import com.marketplace.Util.ResponseHandler;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
-// add idempotent operation
-// remove the response handler custom message "count" part
+// add idempotent post operation
+// add explaination in swagger
+// consider to use projection in each controller to reduce unretrive value and boost performance
 
 @Slf4j
 @RestController
-@RequestMapping("/api/seller")
+@RequestMapping("/api")
 public class SellerAccountController {
 
     private SellerService sellerService;
@@ -42,7 +48,7 @@ public class SellerAccountController {
         this.mapper = mapper;
     }
 
-    @GetMapping
+    @GetMapping("/sellers")
     public ResponseEntity<Object> getAllSellerAccount() {
         log.info("Get /seller - Fetching all sellers ");
         List<SellerAccountDTO> sellers = sellerService.getAllSeller()
@@ -53,7 +59,26 @@ public class SellerAccountController {
         
     }
 
-    @PostMapping // the plan this url redirect into /{id}
+    @Operation(summary = "Seller can be register in here")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Successfully create the store",
+            content = { @Content(mediaType = "application/json", schema = @Schema(implementation = SellerAccountDTO.class)) }
+        ),
+        @ApiResponse(responseCode = "302", description = "the email has already been taken",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(
+                    example = "{\"message\": \"Email already registered\", \"cause\": \"Duplicate resource\"}"
+                )
+            )
+        ),
+        @ApiResponse(responseCode = "400", description = "Invalid inserted value",
+            content = { @Content(mediaType = "application/json", schema = @Schema(
+                example = "Invalid inserted value"
+            )) }
+        )
+    })
+    @PostMapping("/sellers") // the plan this url redirect into /{id}
     public ResponseEntity<Object> createAccount(@RequestBody @Valid SellerAccountCreationDTO accountDTO) {
         log.info("{Post /seller - Creating User: {} - User name is : {} }", accountDTO.email(), accountDTO.name());
         Boolean isSellerCreated = sellerService.checkSellerByEmail(accountDTO.email());
@@ -68,8 +93,8 @@ public class SellerAccountController {
         return ResponseHandler.generateResponse("Success to create", HttpStatus.CREATED, data);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> getSellerById(@PathVariable String id) {
+    @GetMapping("/sellers/{seller_id}")
+    public ResponseEntity<Object> getSellerById(@PathVariable("seller_id") String id) {
         // logger.info("Get /seller/{} - Fetching seller by id ", id);
         log.info("{Get /seller/{} - Fetching seller by id }", id);
         Seller foundSeller = sellerService.getSellerById(id)
@@ -78,7 +103,7 @@ public class SellerAccountController {
         return new ResponseEntity<Object>(data, HttpStatus.OK);
     }
 
-    @GetMapping("/email")
+    @GetMapping("/sellers/email")
     public ResponseEntity<Object> getSellerByEmail(@RequestParam String email) {
         // logger.info("Get /seller/email - Fetching seller by email ", email);
         log.info("{Get /seller/email - Fetching seller by email }", email);
@@ -88,8 +113,8 @@ public class SellerAccountController {
         return ResponseHandler.generateResponse("Successfully retrieve the account", HttpStatus.OK, data);
     }
 
-    @PutMapping("/{id}") // the plan this url redirect into /{id}
-    public ResponseEntity<Object> updateAccount(@PathVariable String id, @RequestBody @Valid SellerAccountUpdateDTO accountdDto) {
+    @PutMapping("/sellers/{seller_id}") // the plan this url redirect into /{id}
+    public ResponseEntity<Object> updateAccount(@PathVariable("seller_id") String id, @RequestBody @Valid SellerAccountUpdateDTO accountdDto) {
         log.info("{Put /seller/{} - updating seller: {} }", id, accountdDto);
         log.info("{Put /seller/{} - updating seller name: {} - updating seller email }", accountdDto.name(), accountdDto.email());
         Seller foundSeller = sellerService.getSellerById(id)
@@ -99,16 +124,16 @@ public class SellerAccountController {
         return ResponseHandler.generateResponse("the result of modified account ", HttpStatus.OK, data);
     }
 
-    @PutMapping("/change-password/{id}") // the plan this url redirect into /{id}
-    public ResponseEntity<Object> updatePassword(@PathVariable String id, @RequestBody @Valid SellerAccountUpdatePasswordDTO accountDto) {
+    @PutMapping("/sellers/change-password/{seller_id}") // the plan this url redirect into /{id}
+    public ResponseEntity<Object> updatePassword(@PathVariable("seller_id") String id, @RequestBody @Valid SellerAccountUpdatePasswordDTO accountDto) {
         Seller foundSeller = sellerService.getSellerById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+id));
         sellerService.updateSellerPassword(foundSeller, accountDto);
         return ResponseHandler.generateResponse("Password successfully changed", HttpStatus.ACCEPTED, "");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteAccount(@PathVariable String id) {
+    @DeleteMapping("/sellers/{seller_id}")
+    public ResponseEntity<Object> deleteAccount(@PathVariable("seller_id") String id) {
         // logger.info("Delete /seller/{} - Deleting seller ", id);
         log.info("{Delete /seller/{} - Deleting seller }", id);
         Seller founSeller = sellerService.getSellerById(id)
@@ -117,5 +142,11 @@ public class SellerAccountController {
         return ResponseHandler.generateResponse("delete successfully", HttpStatus.OK, "");
 
     }
+
+    // @GetMapping("/sellers/test/{seller_id}")
+    // public ResponseEntity<Object> testQuery(@PathVariable("seller_id") String id) {
+    //     AccountProjection outputs = sellerService.getEmailAndName(id);
+    //     return ResponseHandler.generateResponse("Test succesfully", HttpStatus.OK, outputs);
+    // }
 
 }

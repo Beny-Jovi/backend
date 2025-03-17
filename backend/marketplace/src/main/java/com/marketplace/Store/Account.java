@@ -1,11 +1,12 @@
 package com.marketplace.Store;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
 // import org.springframework.security.crypto.bcrypt.BCrypt;
+
+import com.marketplace.Util.Auditable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -15,16 +16,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 // import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "`Account`")
+@Table(name = "`Accounts`")
 @Getter @Setter @NoArgsConstructor
-public class Account {
+public class Account extends Auditable {
     
     @SuppressWarnings("deprecation")
     @Id
@@ -43,26 +43,14 @@ public class Account {
     @Column(name = "password", length = 200, nullable = false)
     private String password;
 
-    @Column(name = "account_created_times", nullable = false, updatable = false)
-    private LocalDateTime accountCreatedTimes;
-
-    @Column(name = "account_updated_times", nullable = false)
-    private LocalDateTime accountUpdatedTimes;
-
     @Column(name = "number_of_stores", nullable = false)
     private int numberOfStores = 0;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Store> stores = new HashSet<Store>();
 
     public void addStores(Store store) {
         stores.add(store);
     }
-
-    @PreUpdate
-    private void beforeupdate() {
-        this.setAccountUpdatedTimes(LocalDateTime.now());
-    }
-
 
 }

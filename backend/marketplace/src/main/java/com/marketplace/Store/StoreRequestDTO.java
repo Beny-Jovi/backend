@@ -20,36 +20,34 @@ public record StoreRequestDTO(
 
     @Min(value = 0, message = "Operating hour start must be ≥0") 
     @Max(value = 23, message = "Operating hour start must be ≤23")
-    int storeOperatingHourStart,
+    int operatingHourStart,
 
     @Min(value = 0, message = "Operating minute start must be ≥0") 
     @Max(value = 59, message = "Operating minute start must be ≤59")
-    int storeOperatingMinutesStart,
+    int operatingMinutesStart,
 
     @Min(value = 0, message = "Operating hour end must be ≥0") 
     @Max(value = 23, message = "Operating hour end must be ≤23")
-    int storeOperatingHoursEnd,
+    int operatingHoursEnd,
 
     @Min(value = 0, message = "Operating minute end must be ≥0") 
     @Max(value = 59, message = "Operating minute end must be ≤59")
-    int storeOperatingMinutesEnd
+    int operatingMinutesEnd
 
 ) {
-    // Compact constructor for validation
     public StoreRequestDTO {
-        if (toLocalTime(storeOperatingHourStart, storeOperatingMinutesStart)
-                .isAfter(toLocalTime(storeOperatingHoursEnd, storeOperatingMinutesEnd))) {
+        if (toLocalTime(operatingHourStart, operatingMinutesStart)
+                .isAfter(toLocalTime(operatingHoursEnd, operatingMinutesEnd))) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
     }
 
-    // Derived fields (no need to store them explicitly)
-    public LocalTime storeOperatingTimeStart() {
-        return toLocalTime(storeOperatingHourStart, storeOperatingMinutesStart);
+    public LocalTime operatingTimeStart() {
+        return toLocalTime(operatingHourStart, operatingMinutesStart);
     }
 
-    public LocalTime storeOperatingTimeEnd() {
-        return toLocalTime(storeOperatingHoursEnd, storeOperatingMinutesEnd);
+    public LocalTime operatingTimeEnd() {
+        return toLocalTime(operatingHoursEnd, operatingMinutesEnd);
     }
 
     private static LocalTime toLocalTime(int hour, int minute) {
