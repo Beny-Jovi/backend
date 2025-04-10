@@ -35,36 +35,8 @@ public class Store extends Auditable {
     )
     private String id;
 
-    @Column(name = "seller_id", length = 26, nullable = false)
-    private String sellerId;
-
     @Column(name = "name", length = 30, nullable = false)
     private String name;
-
-    @Column(name = "rate", nullable = false)
-    private double rate;
-
-    @Column(name = "operating_hours_start", nullable = false)
-    private LocalTime operatingHoursStart;
-
-    @Column(name = "operating_hours_end", nullable = false)
-    private LocalTime operatingHoursEnd;
-
-    private enum StoreStatusEnum {
-        BRONZE,
-        GOLD,
-        PLATINUM
-    }
-
-    @Column(name = "status", length = 20, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private StoreStatusEnum storeStatus;
-
-    @Column(name = "number_of_sales", nullable = false)
-    private int numberOfSales;
-
-    @Column(name = "logo_path", length = 300)
-    private String logoPath;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Etalation> storeEtalations;

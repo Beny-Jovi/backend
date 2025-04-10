@@ -16,10 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class SellerService {
-    // Save seller
-    // get all seller
-    // update seller
-    // delete seller
 
     @Autowired
     private SellerRepository sellerRepository;

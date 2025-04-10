@@ -1,33 +1,28 @@
 package com.marketplace.Store.domain;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.marketplace.Store.api.StoreAccountProjection;
+import com.marketplace.Exception.ResourceDuplicationException;
+import com.marketplace.Exception.ResourceNotFoundException;
+import com.marketplace.Store.api.StoreRequestDTO;
+import com.marketplace.Store.domain.StoreDetail.StoreStatusEnum;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AccountService {
-    
     @Autowired
     private AccountRepository accountRepository;
 
-    public Boolean isAccountThere(String id) {
-        return accountRepository.findAll().stream()
-            .anyMatch(account -> account.getId().contains(id));
-    }
-
     public Optional<Account> getAccountById(String id) {
         return accountRepository.findById(id);
-    }
-
-    public void addNumberOfStores(Account foundAccount) {
-        int currentNumberOfStores = foundAccount.getNumberOfStores() + 1;
-        foundAccount.setNumberOfStores(currentNumberOfStores);
-        accountRepository.save(foundAccount);
     }
 
     public void saveAccount(Account account) {
@@ -35,16 +30,61 @@ public class AccountService {
         accountRepository.save(account);
     }
 
-    // public Accounts getAccountByName(String accountName) {
-    //     return accountRepository.findAccountByName(accountName);
-    // }
-    
-    // public List<StoreProjection> getStoresByAccountId(String id) {
-    //     return accountRepository.findStoresByAccountId(id);
-    // }
+    public void deleteStoreFromAccount(String sellerId) {
+        Account account = getAccountById(sellerId)
+            .orElseThrow(() -> new ResourceNotFoundException("Seller with this id not found"));
+        if (account.getStore() == null) {
+            throw new IllegalArgumentException("Store has not created yet");
+        }
+        account.setStore(null);
+        saveAccount(account);
+    }
 
-    public List<StoreAccountProjection> getAllAccount() {
-        return accountRepository.findAllProjected();
+    @Transactional
+    public Store createStore(String sellerId, Boolean hasStoreNameSame, StoreRequestDTO storeDto) {
+        log.info("create store initiate");
+        Account account = getAccountById(sellerId)
+            .orElseThrow(() -> new ResourceNotFoundException("account with this id is not found " + sellerId));
+        if (account.getStore() != null) {
+            throw new IllegalArgumentException("The store has already been created");
+        }
+        if (hasStoreNameSame) {
+            throw new ResourceDuplicationException("The name of the store is already been taken");
+        }
+
+        StoreDetail storeDetail = StoreDetail.builder()
+            .rate(0)
+            .numberOfSales(0)
+            .status(StoreStatusEnum.BRONZE)
+            .build();
+        Store createdStore = Store.builder()
+            .name(storeDto.storeName())
+            .storeDetail(storeDetail)
+            .build();
+        Profile storeProfile = new Profile(createdStore);
+
+        account.setStore(createdStore);
+        createdStore.setAccount(account);
+        createdStore.setStoreProfile(storeProfile);
+        storeDetail.setStore(createdStore);
+
+        saveAccount(account);
+        return createdStore;
+    }
+
+    public String updateStoreName(String sellerId, Boolean hasStoreNameSame, StoreRequestDTO storeDto) {
+        Account account = getAccountById(sellerId)
+            .orElseThrow(() -> new ResourceNotFoundException("Seller with this id is not found " + sellerId));
+        if (account.getStore() == null) {
+            throw new IllegalArgumentException("Store has not created yet");
+        }
+        if (hasStoreNameSame) {
+            throw new ResourceDuplicationException("The name of the store is already been taken");
+        }
+        Store createdStore = account.getStore();
+        createdStore.setName(storeDto.storeName());
+        saveAccount(account);
+        return createdStore.getName();
     }
 
 }

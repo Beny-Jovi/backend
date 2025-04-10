@@ -11,6 +11,8 @@ import com.marketplace.Store.api.StoreProjection;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, String> {
-    @Query("SELECT s.name AS storeName, s.rate AS storeRate FROM Store s")
-    List<StoreProjection> findStoresNameAndRate();
+    // @Query("SELECT s.name AS storeName, s.rate AS storeRate FROM Store s")
+    // StoreProjection findStoresNameAndRate();
+    @Query("SELECT new com.marketplace.Store.api.StoreProjection(s.id, s.name) FROM Store s")
+    List<StoreProjection> getAllStore();
 }

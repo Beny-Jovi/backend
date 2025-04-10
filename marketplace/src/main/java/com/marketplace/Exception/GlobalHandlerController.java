@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -43,7 +46,8 @@ public class GlobalHandlerController {
     public ResponseEntity<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         List<String> errors = Collections.singletonList(ex.getMessage());
         log.error("Error in HttpMessageNotReadableException, cause is: {}", ex.getMostSpecificCause());
-        return new ResponseEntity<>(getErrorsMap(errors), HttpStatus.BAD_REQUEST);
+//        return new ResponseEntity<>(getErrorsMap(errors), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Please do not enter the empty file", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RuntimeException.class)
@@ -69,6 +73,24 @@ public class GlobalHandlerController {
         return new ResponseEntity<Object>(getErrorsMap(errors), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(IOFileUploadException.class)
+    public ResponseEntity<Object> handleIOFileUploadException(IOFileUploadException ex) {
+        log.error("file upload exception: {}", ex.getCause());
+        return new ResponseEntity<>("Don't upload the file in this place", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleNoResourceFound(NoResourceFoundException ex) {
+        log.error("No resource found: {}", ex.getCause());
+        return new ResponseEntity<>("Resource Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<String> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        log.error("Max size exception: {}" + exc.getMessage());
+        return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("File too large!");
+    }
+
     @ExceptionHandler(ResourceDuplicationException.class)
     public ResponseEntity<Object> handleTheSameNameError(ResourceDuplicationException ex) {
         log.error("Resource duplication exception", ex.getMessage());
@@ -76,6 +98,15 @@ public class GlobalHandlerController {
         errorBody.put("message", ex.getMessage());
         errorBody.put("cause", ex.getCause() != null ? ex.getCause().getMessage() : "Duplicate resource");
         return new ResponseEntity<>(errorBody, HttpStatus.FOUND);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalExceptionError(IllegalArgumentException ex) {
+        log.error("Illegal argument exception error", ex.getMessage());
+        Map<String, Object> errorBody = new HashMap<String, Object>();
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("cause", ex.getCause() != null ? ex.getCause().getMessage() : "please make the good argument");
+        return new ResponseEntity<>(errorBody, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

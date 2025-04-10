@@ -1,9 +1,12 @@
 package com.marketplace.Store.api;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import jakarta.servlet.annotation.MultipartConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,9 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.marketplace.Exception.ResourceDuplicationException;
 import com.marketplace.Exception.ResourceNotFoundException;
 import com.marketplace.Store.domain.Account;
 import com.marketplace.Store.domain.AccountService;
@@ -27,6 +31,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@MultipartConfig(maxFileSize = 3 * 1024 * 1024, maxRequestSize = 3 * 1024 * 1024)
 @RestController
 @RequestMapping("/api")
 public class StoreAccountController {
@@ -35,6 +40,9 @@ public class StoreAccountController {
     private final AccountService accountService;
     private final StoreMapper mapper;
 
+    @Value("${file.upload-profile}")
+    private String uploadDir;
+
     @Autowired
     public StoreAccountController(StoreService storeService, AccountService accountService, StoreMapper mapper) {
         this.storeService = storeService;
@@ -42,120 +50,98 @@ public class StoreAccountController {
         this.mapper = mapper;
     }
 
-    @GetMapping("/sellers/stores")
-    public ResponseEntity<List<StoreDto>> getAllStores() {
-        List<StoreDto> stores = storeService.getAllStores()
-            .stream()
-            .map(mapper::toStoreDto)
-            .collect(Collectors.toList());
-        log.info("Admin get stores object: {}", stores);
-        return ResponseEntity.ok().body(stores);
+    @GetMapping("/stores")
+    public ResponseEntity<Object> getAllStores() {
+        List<StoreProjection> outputs = storeService.getAllIdAndNammeStores();
+        log.info("Admin get stores object: {}", outputs);
+        return ResponseHandler.generateResponse("Successfully to retrieve the stores", HttpStatus.OK, outputs);
     }
 
-    @GetMapping("/sellers/{seller_id}/stores")
-    public ResponseEntity<Object> getAllStoresWithAnAccount(@PathVariable("seller_id") String sellerId) {
+    @GetMapping("/sellers/{seller_id}/stores/store")
+    public ResponseEntity<Object> getStoreWithAnAccount(@PathVariable("seller_id") String sellerId) {
         log.info("Get initialize /api/sellers/{seller_id}/stores");
-        Account accounts = accountService.getAccountById(sellerId)
+        Account account = accountService.getAccountById(sellerId)
             .orElseThrow(() -> new ResourceNotFoundException("resource not found"));
-        List<StoreDto> storesDtos = accounts.getStores().stream()
-            .map(mapper::toStoreDto)
-            .collect(Collectors.toList());
-        log.info("Get initialize /api/sellers/{seller_id}/stores" + storesDtos);
-        // List<StoreProjection> storesDtos = accountService.getStoresByAccountId(sellerId);
-        return ResponseHandler.generateResponse("Get the stores from the sellers", HttpStatus.OK, storesDtos);
+        log.info("get account by id method has executed");
+        if (account.getStore() == null) {
+            throw new IllegalArgumentException("You need to create store first");
+        }
+        Store store = account.getStore();
+        StoreDto output = mapper.toStoreDto(store);
+        return ResponseHandler.generateResponse("Get the stores from the sellers", HttpStatus.OK, output);
 
     }
 
+//    @GetMapping("/stores/{store_id}/store_operating_time")
+//    public ResponseEntity<Object> getAllStoreOperatingTime(@PathVariable("store_id") String storeId) {
+//
+//    }
+
+//    @PutMapping("/stores/{store_id}/store_operating_time")
+//    public ResponseEntity<Object> createStoreOperatingTime(@PathVariable("store_id") String storeId, @RequestBody @Valid List<StoreRequestOperatingHoursDto> storeDto) {
+//        storeService.updateStoreOperatingHours(storeId, storeDto);
+//        return ResponseHandler.generateResponse("Store name successfully changes", HttpStatus.CREATED, storeDto);
+//    }
+
+    @GetMapping("/stores/{store_id}/profile")
+    public ResponseEntity<Object> getStoreLogo(@PathVariable("store_id") String storeId) {
+        Store store = storeService.getStoreById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("The store with this id not found"));
+        try {
+            Resource storePath = storeService.getStoreLogo(store);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(storePath);
+
+        } catch (IOException ex) {
+            log.error(ex.getMessage());
+            return ResponseHandler.generateResponse("Failed to get file", HttpStatus.NOT_FOUND, "");
+        }
+
+    }
+
+    @PutMapping("/stores/{store_id}/upload_image/image")
+    public ResponseEntity<Object> updateStoreLogo(@PathVariable("store_id") String storeId, @RequestParam("image") MultipartFile file) {
+        Store store = storeService.getStoreById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("The store with this id not found"));
+        try {
+            String uploadedFile = storeService.uploadStoreProfile(store, file, uploadDir);
+            return ResponseHandler.generateResponse("Image successfully to uploaded", HttpStatus.CREATED, uploadedFile);
+        } catch(IOException ex) {
+            log.error("file upload error" + ex.getMessage());
+            throw new IllegalArgumentException("File upload error");
+        }
+    }
+
+    @DeleteMapping("/stores/{store_id}/uploaded_image")
+    public ResponseEntity<Object> deleteStoreLogo(@PathVariable("store_id") String storeId) {
+        try {
+            storeService.deleteStoreLogo(storeId);
+            return ResponseHandler.generateResponse("Image successfully to deleted", HttpStatus.CREATED, "");
+        } catch (IOException ex) {
+            log.error("/api/stores/{store_id}/uploaded_images", "delete store logo error is: {}", ex.getMessage());
+            throw new IllegalArgumentException("Can't read the file");
+        }
+    }
+    
     // let's keep it to this way first with {sellerId} stuff
     @PostMapping("/sellers/{seller_id}/stores")
     public ResponseEntity<Object> createStore(@PathVariable("seller_id") String sellerId, @RequestBody @Valid StoreRequestDTO storeDto) {
-        log.info("Post /api/sellers/sellerId/stores store name doesn't have any conflict: {}", storeDto.storeName());
-        Account account = accountService.getAccountById(sellerId)
-            .orElseThrow(() -> new ResourceNotFoundException("Seller with this id is not found " + sellerId));
-        if (storeService.hasStoreNameSame(storeDto.storeName())) {
-            throw new ResourceDuplicationException("Store name has already been taken");
-        }
-        log.info("Post /api/sellers/sellerId/stores find based on seller id: {}", "the seller is: {}", sellerId, account);
-        Store createdStore = mapper.toStore(storeDto);
-        log.info("Post /api/sellers/sellerId/stores created store is: {}", createdStore);
-        accountService.addNumberOfStores(account);
-        account.addStores(createdStore);
-
-        createdStore.setAccount(account);
-        log.trace("Post /api/sellers/sellerId/stores save account: {}", account);
-        
-        accountService.saveAccount(account);
+        Store createdStore = accountService.createStore(sellerId, storeService.hasStoreNameSame(storeDto.storeName()), storeDto);
         StoreDto parseToStoreDto = mapper.toStoreDto(createdStore);
         return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, parseToStoreDto);
     }
 
-    @GetMapping("/sellers/{seller_id}/stores/{store_id}")
-    public ResponseEntity<Object> getStore(@PathVariable("seller_id") String sellerId, @PathVariable("store_id") String storeId) {
-        log.info("Get /seller/{seller_id}/stores/{store_id} find based on seller id: {}", "find based on store id: {}", sellerId, storeId);
-        Boolean isSellerAccountThere = accountService.isAccountThere(sellerId);
-        if (!isSellerAccountThere) {
-            throw new ResourceNotFoundException("Store Not found with this id");
-        }
-        Store foundStore = storeService.getStoreById(storeId)
-            .orElseThrow(() -> new ResourceNotFoundException("Store with this id not found"+ storeId));
-        StoreDto storeOutput = mapper.toStoreDto(foundStore);
-        return ResponseHandler.generateResponse("Get Store", HttpStatus.OK, storeOutput);
-
+    @PutMapping("/sellers/{seller_id}/stores/store")
+    public ResponseEntity<Object> updateStoreName(@PathVariable("seller_id") String sellerId, @RequestBody @Valid StoreRequestDTO storeDto) {
+        String storeUpdatedName = accountService.updateStoreName(sellerId, storeService.hasStoreNameSame(storeDto.storeName()), storeDto);
+        return ResponseHandler.generateResponse("Store name successfully changes", HttpStatus.CREATED, storeUpdatedName);
     }
 
-    @PutMapping("/sellers/{seller_id}/stores/{store_id}")
-    public ResponseEntity<Object> updateStore(@PathVariable("seller_id") String sellerId, @PathVariable("store_id") String storeId, @RequestBody @Valid StoreRequestDTO storeDto) {
-        log.info("Put /sellers/{seller_id}/stores/{store_id} find based on seller id: {}", "find based on store id: {}", sellerId, storeId);
-        Boolean checkAccount = accountService.isAccountThere(sellerId);
-        if (!checkAccount) {
-            throw new ResourceDuplicationException("there is no account with this id");
-        }
-        log.info("Put /sellers/{seller_id}/stores/{store_id} passed the checking test");
-        Store foundStore = storeService.getStoreById(storeId)
-            .orElseThrow(() -> new ResourceNotFoundException("store with this id not found "+ storeId));
-        if (storeService.hasStoreNameSame(storeDto.storeName())) {
-            throw new ResourceDuplicationException("Store name has already been taken");
-        }
-        Store updatedStore = storeService.updateStore(foundStore, storeDto);
-        StoreDto storeOutput = mapper.toStoreDto(updatedStore);
-        log.info("Put /sellers/{seller_id}/stores/{store_id} success for update the store");
-        return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, storeOutput);
-        
+    @DeleteMapping("/sellers/{seller_id}/stores/store")
+    public ResponseEntity<Object> deleteStore(@PathVariable("seller_id") String sellerId) {
+        accountService.deleteStoreFromAccount(sellerId);
+        return ResponseHandler.generateResponse("Store name successfully changes", HttpStatus.CREATED, "");
     }
-
-    @DeleteMapping("/sellers/{seller_id}/stores/{store_id}")
-    public ResponseEntity<Object> deleteStore(@PathVariable("seller_id") String sellerId, @PathVariable("store_id") String storeId) {
-        Boolean checkAccount = accountService.isAccountThere(sellerId);
-        if (!checkAccount) {
-            throw new ResourceDuplicationException("there is no account with this id");
-        }
-        Store foundStore = storeService.getStoreById(storeId)
-            .orElseThrow(() -> new ResourceNotFoundException("store with this id not found "+ storeId));
-        storeService.deleteStoreById(foundStore);    
-        return ResponseHandler.generateResponse("Store Deleted", HttpStatus.CREATED, "store has been deleted");
-    }
-
-    // @GetMapping("/stores/test")
-    // public ResponseEntity<Object> testAccountQuery() {
-    //     List<StoreAccountProjection> output = accountService.getAllAccount();
-    //     return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, output);
-    // }
-
-
-    // @GetMapping("/name")
-    // public String getThreadName() {
-    //     return Thread.currentThread().toString();
-    // }
-
-    // @GetMapping("/thread_check")
-    // public void doSomething() throws InterruptedException {
-    //     log.info("hey, I'm doing something");
-    //     Thread.sleep(1000);
-    // }
-
-    // @GetMapping("/spring_version")
-    // public String getSpringVersion() {
-    //     return "Version" + SpringVersion.getVersion();
-    // }
 
 }

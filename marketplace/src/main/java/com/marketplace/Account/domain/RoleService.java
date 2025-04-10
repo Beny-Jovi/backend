@@ -31,15 +31,4 @@ public class RoleService {
         return role;
     }
 
-    public void DeleteRole(String roleId) {
-        Role foundRole = roleRepository.findAll()
-        .stream()
-        .filter(role -> role.getId().equals(roleId))
-        .findAny()
-        .orElse(null);
-        if (foundRole != null) {
-            roleRepository.delete(foundRole);
-        }
-    }
-
 }

@@ -33,8 +33,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 // add idempotent post operation
-// add explaination in swagger
-// consider to use projection in each controller to reduce unretrive value and boost performance
+// add explanation in swagger
+// consider to use projection in each controller to reduce unretrieve value and boost performance
 // eliminate all "" or `` which is no need in database
 
 @Slf4j
@@ -55,7 +55,7 @@ public class SellerAccountController {
 
     @GetMapping("/sellers")
     public ResponseEntity<Object> getAllSellerAccount() {
-        log.info("Get /seller - Fetching all sellers ");
+//        log.info("Get /seller - Fetching all sellers ");
         List<SellerAccountDTO> sellers = sellerService.getAllSeller()
             .stream()
             .map(mapper::toAccountDto)
@@ -85,7 +85,7 @@ public class SellerAccountController {
     })
     @PostMapping("/sellers") // the plan this url redirect into /{id}
     public ResponseEntity<Object> createAccount(@RequestBody @Valid SellerAccountCreationDTO accountDTO) {
-        log.info("{Post /seller - Creating User: {} - User name is : {} }", accountDTO.email(), accountDTO.name());
+//        log.info("{Post /seller - Creating User: {} - User name is : {} }", accountDTO.email(), accountDTO.name());
         Boolean isSellerCreated = sellerService.checkSellerByEmail(accountDTO.email());
         if (isSellerCreated) {
             throw new ResourceDuplicationException("the name of the account has already been taken");
@@ -103,8 +103,6 @@ public class SellerAccountController {
 
     @GetMapping("/sellers/{seller_id}")
     public ResponseEntity<Object> getSellerById(@PathVariable("seller_id") String id) {
-        // logger.info("Get /seller/{} - Fetching seller by id ", id);
-        log.info("{Get /seller/{} - Fetching seller by id }", id);
         Seller foundSeller = sellerService.getSellerById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id ));
         SellerAccountDTO data = mapper.toAccountDto(foundSeller);
@@ -113,8 +111,6 @@ public class SellerAccountController {
 
     @GetMapping("/sellers/email")
     public ResponseEntity<Object> getSellerByEmail(@RequestParam String email) {
-        // logger.info("Get /seller/email - Fetching seller by email ", email);
-        log.info("{Get /seller/email - Fetching seller by email }", email);
         Seller foundSeller = sellerService.getSellerByEmail(email)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with email " + email));
         SellerAccountDTO data = mapper.toAccountDto(foundSeller);
@@ -122,12 +118,10 @@ public class SellerAccountController {
     }
 
     @PutMapping("/sellers/{seller_id}") // the plan this url redirect into /{id}
-    public ResponseEntity<Object> updateAccount(@PathVariable("seller_id") String id, @RequestBody @Valid SellerAccountUpdateDTO accountdDto) {
-        log.info("{Put /seller/{} - updating seller: {} }", id, accountdDto);
-        log.info("{Put /seller/{} - updating seller name: {} - updating seller email }", accountdDto.name(), accountdDto.email());
+    public ResponseEntity<Object> updateAccount(@PathVariable("seller_id") String id, @RequestBody @Valid SellerAccountUpdateDTO accountDto) {
         Seller foundSeller = sellerService.getSellerById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
-        Seller newSellerData = sellerService.updateSeller(foundSeller, accountdDto);
+        Seller newSellerData = sellerService.updateSeller(foundSeller, accountDto);
         SellerAccountDTO data = mapper.toAccountDto(newSellerData);
         return ResponseHandler.generateResponse("the result of modified account ", HttpStatus.OK, data);
     }
@@ -146,7 +140,7 @@ public class SellerAccountController {
     @DeleteMapping("/sellers/{seller_id}")
     public ResponseEntity<Object> deleteAccount(@PathVariable("seller_id") String id) {
         // logger.info("Delete /seller/{} - Deleting seller ", id);
-        log.info("{Delete /seller/{} - Deleting seller }", id);
+//        log.info("{Delete /seller/{} - Deleting seller }", id);
         Seller founSeller = sellerService.getSellerById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+ id));
         sellerService.deleteSellerById(founSeller);
@@ -157,7 +151,7 @@ public class SellerAccountController {
     // @GetMapping("/sellers/test/{seller_id}")
     // public ResponseEntity<Object> testQuery(@PathVariable("seller_id") String id) {
     //     AccountProjection outputs = sellerService.getEmailAndName(id);
-    //     return ResponseHandler.generateResponse("Test succesfully", HttpStatus.OK, outputs);
+    //     return ResponseHandler.generateResponse("Test successfully", HttpStatus.OK, outputs);
     // }
 
 }
