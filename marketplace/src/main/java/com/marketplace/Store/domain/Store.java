@@ -1,27 +1,26 @@
 package com.marketplace.Store.domain;
 
-import java.time.LocalTime;
-
+import jakarta.persistence.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.marketplace.Util.Auditable;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Entity
 @Table(name = "`Stores`")
-@Getter @Setter @NoArgsConstructor
+@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Store extends Auditable {
 
     @SuppressWarnings("deprecation")
@@ -35,40 +34,30 @@ public class Store extends Auditable {
     @Column(name = "name", length = 80, nullable = false)
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "seller_id", nullable = false, referencedColumnName = "id")
+    @OneToOne(mappedBy = "store")
     private Account account;
 
-    @Column(name = "rate", nullable = false)
-    private double rate = 0;
+    @OneToOne(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn
+    private StoreDetail storeDetail;
 
-    @Column(name = "operating_hours_start", nullable = false)
-    private LocalTime operatingHoursStart;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "Store_Profiles",
+        joinColumns = {
+            @JoinColumn(name = "store_id", referencedColumnName = "id")
+        }, inverseJoinColumns = {
+            @JoinColumn(name = "profile_id", referencedColumnName = "id")
+        }
+    )
+    private Profile storeProfile;
 
-    @Column(name = "operating_hours_end", nullable = false)
-    private LocalTime operatingHoursEnd;
-
-    public enum StoreStatusEnum {
-        BRONZE,
-        GOLD,
-        PLATINUM
+    public Store(String name) {
+        this.setName(name);
     }
 
-    @Column(name = "status", length = 20, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private StoreStatusEnum storeStatus = StoreStatusEnum.BRONZE;
-
-    @Column(name = "number_of_sales", nullable = false)
-    private int numberOfSales = 0;
-
-    @Column(name = "logo_path", length = 300)
-    private String logoPath = "";
-
-    public Store(String name, LocalTime operatingHoursStart, LocalTime operatingHoursEnd, String logoPath) {
+    public Store(String name, Account account) {
         this.setName(name);
-        this.setOperatingHoursStart(operatingHoursStart);
-        this.setOperatingHoursEnd(operatingHoursEnd);
-        this.setLogoPath(logoPath);
+        this.setAccount(account);
     }
 
 }

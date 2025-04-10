@@ -43,12 +43,9 @@ public class Seller extends Auditable {
     @Column(name = "password", length = 200, nullable = false)
     private String password;
 
-    @Column(name = "number_of_stores", nullable = false)
-    private int numberOfStores = 0;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
-        name = "`Accounts_Roles`",
+        name = "`Account_Roles`",
         joinColumns = @JoinColumn(name = "Account_id"),
         inverseJoinColumns = @JoinColumn(name="role_id")
     )

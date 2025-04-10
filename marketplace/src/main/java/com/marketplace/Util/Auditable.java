@@ -10,18 +10,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import lombok.Setter;
 
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
-@Getter
+@Getter @Setter
 public abstract class Auditable {
     
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
-    protected LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_times", nullable = false)
     @LastModifiedDate
-    protected LocalDateTime updatedTimes;
+    private LocalDateTime updatedTimes;
 
 }

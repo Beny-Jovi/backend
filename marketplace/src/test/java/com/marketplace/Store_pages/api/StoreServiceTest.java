@@ -30,13 +30,13 @@ public class StoreServiceTest {
     // @Test
     // public void testGetStoreById() {
     //     String id = "01E6Z8QY0XJZ9Z9Z9Z9Z9Z9Z9Z";
-    //     StoreView mockStoreView = new StoreView(id);
+    //     Store mockStoreView = new Store;
 
-    //     Mockito.when(storeRepository.getStoreWithId(id)).thenReturn(Optional.of(mockStoreView));
+    //     // Mockito.when(storeRepository.get).thenReturn(Optional.of(mockStoreView));
 
-    //     StoreView result = storeService.getStoreDataById(id).orElseThrow(null);
+    //     // StoreView result = storeService.getStoreDataById(id).orElseThrow(null);
 
-    //     assertEquals(Optional.of(mockStoreView), result);
+    //     // assertEquals(Optional.of(mockStoreView), result);
         
     //     // verify(storeRepository).getStoreWithId(id);
     // }
