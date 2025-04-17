@@ -1,8 +1,6 @@
 package com.marketplace.Store.domain;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +40,6 @@ public class AccountService {
 
     @Transactional
     public Store createStore(String sellerId, Boolean hasStoreNameSame, StoreRequestDTO storeDto) {
-        log.info("create store initiate");
         Account account = getAccountById(sellerId)
             .orElseThrow(() -> new ResourceNotFoundException("account with this id is not found " + sellerId));
         if (account.getStore() != null) {

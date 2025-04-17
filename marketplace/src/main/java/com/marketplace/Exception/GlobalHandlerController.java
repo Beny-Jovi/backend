@@ -60,6 +60,7 @@ public class GlobalHandlerController {
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<Object> handleJDBCExceptionError(DataAccessException ex) {
         log.error("Error data access exception", ex.getMessage());
+        log.error("Error data access exception cause", ex.getCause());
         // List<String> errors = Collections.singletonList(ex.getMessage());
         return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }

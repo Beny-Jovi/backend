@@ -2,6 +2,7 @@ package com.marketplace.Account.domain;
 
 import java.util.Set;
 
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.marketplace.Account.api.RoleEnum;
@@ -14,13 +15,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "`Roles`")
-@Getter @Setter @NoArgsConstructor
+@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Role {
     
     @SuppressWarnings("deprecation")

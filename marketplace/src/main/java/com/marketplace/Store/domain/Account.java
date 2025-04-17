@@ -1,17 +1,15 @@
 package com.marketplace.Store.domain;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.marketplace.Util.Auditable;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 @Entity
 @Table(name = "`Accounts`")
-@Getter @Setter @NoArgsConstructor
+@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Account extends Auditable {
     
     @SuppressWarnings("deprecation")
