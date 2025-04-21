@@ -1,17 +1,16 @@
 package com.marketplace.StoreOperatingHours.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.io.Serializable;
+import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name = "Store_Operation_Hours")
 @Table(name = "`Stores`")
+@Builder
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Store {
 
@@ -27,6 +26,9 @@ public class Store {
     private String name;
 
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
-    private Set<StoreDayOperatingHours> storeDayOperatingHours;
-}
+    private Set<StoreDayOperatingHours> storeDayOperatingHours = new HashSet<>();
 
+//    public void addStoreDayOperatingHours(StoreDayOperatingHours storeDayOperatingHours) {
+//        storeDayOperatingHours
+//    }
+}

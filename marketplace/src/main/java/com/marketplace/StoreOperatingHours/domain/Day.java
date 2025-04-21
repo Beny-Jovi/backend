@@ -20,9 +20,13 @@ public class Day {
     )
     private String id;
 
+    public enum DaysOfWeek {
+        MINGGU, SENIN, SELASA, RABU, KAMIS, JUMAT, SABTU
+    }
+
     @Enumerated(EnumType.STRING)
     @Column(name = "day_name", length = 15, nullable = false, updatable = false)
-    private DayOfWeek dayName;
+    private DaysOfWeek dayName;
 
     @OneToMany(mappedBy = "day", fetch = FetchType.LAZY)
     Set<StoreDayOperatingHours> storeDayOperatingHours;
