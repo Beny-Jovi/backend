@@ -25,4 +25,3 @@ mvn clean package
 
 - Access the application at `http://localhost:8080`.
 - Alternatively you can access `http://localhost:8080/swagger-ui/index.html`
-- 
