@@ -8,6 +8,11 @@ Briefly describe what the application does here. For example:
 - **Java**: 17 or later
 
 ## Building the Application
+To build the application, navigate to the project root directory and run:
+
+```bash
+mvn clean package
+```
 
 ## Features
 - Spring data JPA
@@ -18,12 +23,6 @@ Briefly describe what the application does here. For example:
 - slf4j
 - Assertj
 - Mockito
-
-To build the application, navigate to the project root directory and run:
-
-```bash
-mvn clean package
-```
 
 ## Configuration
 
