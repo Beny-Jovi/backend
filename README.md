@@ -7,7 +7,6 @@ Briefly describe what the application does here. For example:
 ## Prerequisites
 
 - **Java**: 17 or later
-- **Build Tool**: Maven 3.6 or later (or Gradle 7.0 or later)
 
 ## Building the Application
 
