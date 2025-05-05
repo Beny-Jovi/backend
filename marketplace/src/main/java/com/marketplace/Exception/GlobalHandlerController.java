@@ -83,6 +83,7 @@ public class GlobalHandlerController {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<Object> handleNoResourceFound(NoResourceFoundException ex) {
         log.error("No resource found: {}", ex.getCause());
+        log.error("No resource found: {}", ex.getRootCause());
         return new ResponseEntity<>("Resource Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -116,7 +117,7 @@ public class GlobalHandlerController {
         Map<String, Object> body = new HashMap<String, Object>();
         body.put("cause", ex.getCause());
         body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.FOUND);
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
 }
