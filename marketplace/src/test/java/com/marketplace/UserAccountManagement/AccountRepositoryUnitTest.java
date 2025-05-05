@@ -1,0 +1,65 @@
+package com.marketplace.UserAccountManagement;
+
+import com.marketplace.UserAccountManagement.api.UserAccountDTO;
+import com.marketplace.UserAccountManagement.domain.Role;
+import com.marketplace.UserAccountManagement.domain.UserRepository;
+import com.marketplace.UserAccountManagement.domain.User;
+import org.junit.jupiter.api.RepeatedTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
+
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DataJpaTest
+public class AccountRepositoryUnitTest {
+    @Autowired
+    private UserRepository sellerRepository;
+
+    @RepeatedTest(3)
+    @Rollback(value = false)
+    public void testSaveAccount_ThenReturnAccountId() {
+        Role role = Role.builder()
+                .roleName(Role.RoleEnum.SELLER)
+                .build();
+        Set<Role> sellerRoles = new HashSet<>();
+        sellerRoles.add(role);
+        User seller = new User("test@test", "test", "test_password", sellerRoles);
+        seller.setCreatedAt(LocalDateTime.now());
+        seller.setUpdatedTimes(LocalDateTime.now());
+//        sellerInRoles.add(seller);
+//        seller.setAccountRoles(sellerRoles);
+        User savedSeller = sellerRepository.save(seller);
+        System.out.println("savedSeller = " + savedSeller);
+        assertThat(savedSeller.getId()).isNotNull();
+        assertThat(savedSeller.getEmail()).isEqualTo("test@test");
+        assertThat(savedSeller.getAccountRoles()).isNotNull();
+    }
+
+    @RepeatedTest(3)
+    @Rollback(value = false)
+    public void testFindAccountEmailAndName_thenReturnEmailAndName() {
+        Role role = Role.builder()
+                .roleName(Role.RoleEnum.SELLER)
+                .build();
+        Set<Role> sellerRoles = new HashSet<>();
+        sellerRoles.add(role);
+        User seller = new User("test@test", "test", "test_password", sellerRoles);
+        seller.setCreatedAt(LocalDateTime.now());
+        seller.setUpdatedTimes(LocalDateTime.now());
+        User savedSeller = sellerRepository.save(seller);
+        System.out.println("savedSeller.getName() = " + savedSeller.getName());
+
+        UserAccountDTO result = sellerRepository.findAccountEmailAndName(savedSeller.getId());
+//        AccountProjection result = sellerRepository.findAccountEmailAndName(savedSeller.getId());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getSellerName()).isEqualTo("test");
+        assertThat(result.getSellerEmail()).isEqualTo("test@test");
+    }
+
+}

@@ -1,0 +1,17 @@
+package com.marketplace.UserAccountManagement.api;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record UserAccountUpdateDTO(
+    @NotBlank(message = "Invalid email: empty null")
+    @Email(message = "Invalid Email")
+    String email,
+
+    @NotBlank(message = "name can't be empty")
+    String name
+) {}
