@@ -45,5 +45,4 @@ public class Role {
     public void addSeller(Account account) {
         sellers.add(account);
     }
-
 }

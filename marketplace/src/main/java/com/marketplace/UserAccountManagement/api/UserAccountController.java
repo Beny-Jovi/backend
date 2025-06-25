@@ -1,7 +1,6 @@
 package com.marketplace.UserAccountManagement.api;
 
 import java.util.List;
-import java.util.Map;
 
 import com.marketplace.UserAccountManagement.domain.Role;
 import com.marketplace.UserAccountManagement.domain.RoleService;

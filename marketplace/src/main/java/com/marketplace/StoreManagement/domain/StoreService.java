@@ -49,7 +49,7 @@ public class StoreService {
             .anyMatch(store -> store.getName().contains(storeName));
     }
 
-    public String uploadStoreProfile(Store store, MultipartFile file, String uploadDir) throws IOException {
+public String uploadStoreProfile(Store store, MultipartFile file, String uploadDir) throws IOException {
 
         if (file.getSize() > 2_000_000) {
             throw new IllegalArgumentException("File is too large. The size limit is 2 MB.");
