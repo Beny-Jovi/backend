@@ -12,6 +12,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,20 +44,20 @@ public class StoreRepositoryUnitTest {
                 .build();
         Profile  storeProfile = new Profile();
         storeProfile.setLogoPath("test_logo_path");
-        storeProfile.setCreatedAt(LocalDateTime.now());
-        storeProfile.setUpdatedTimes(LocalDateTime.now());
+        storeProfile.setCreatedAt(new Date());
+        storeProfile.setUpdatedTimes(new Date());
         Store store = Store.builder()
                 .name("things")
                 .account(account)
                 .storeProfile(storeProfile)
                 .storeDetail(storeDetail)
                 .build();
-        store.setCreatedAt(LocalDateTime.now());
-        store.setUpdatedTimes(LocalDateTime.now());
+        store.setCreatedAt(new Date());
+        store.setUpdatedTimes(new Date());
         storeDetail.setStore(store);
         account.setStore(store);
-        account.setCreatedAt(LocalDateTime.now());
-        account.setUpdatedTimes(LocalDateTime.now());
+        account.setCreatedAt(new Date());
+        account.setUpdatedTimes(new Date());
         Account savedAccount = accountRepository.save(account);
         store.setAccount(account);
         Store savedStore = storeRepository.save(store);

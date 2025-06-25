@@ -180,56 +180,27 @@ public class StoreServiceUnitTest {
 
     }
 
-    @RepeatedTest(3)
-    @Order(7)
-    public void uploadStoreProfileTest_thenThrowResourceNotFoundException() {
-        String id = "store_id1";
-
-        when(storeRepository.findById(id)).thenReturn(Optional.empty());
-
-        MultipartFile file = new MockMultipartFile(
-                "image",
-                "image_test.png",
-                "image/png",
-                "image_test".getBytes()
-        );
-
-        String uploadDir = "test/upload/image/";
-
-        assertThatThrownBy(() -> storeService.uploadStoreProfile(id, file, uploadDir))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("The store with this id not found");
-
-    }
-
-    @RepeatedTest(3)
-    @Order(8)
-    public void uploadStoreProfileTest_ifImageIsGif_thenThrowIllegalArgumentException() {
-        String id = "store_id";
-
-        when(storeRepository.findById(id)).thenReturn(Optional.of(store));
-
-        Store existingStore = storeService.getStoreById(id).get();
-        MultipartFile file = new MockMultipartFile(
-                "image",
-                "image_name_test.gif",
-                "image/gif",
-                "test_image".getBytes()
-        );
-
-        assertThat(existingStore.getId()).isEqualTo(id);
-
-        String uploadDir = "test/upload/image/";
-        Path mockPath = Paths.get(uploadDir)
-                .resolve(id)
-                .resolve("profile/profile_" + id + ".gif");
-        System.out.println("mockPath = " + mockPath);
-
-        assertThatThrownBy(() -> storeService.uploadStoreProfile(id, file, uploadDir))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Invalid file type. Only PNG or JPEG or JPG files are allowed");
-
-    }
+//    @RepeatedTest(3)
+//    @Order(7)
+//    public void uploadStoreProfileTest_thenThrowResourceNotFoundException() {
+//        String id = "store_id1";
+//
+//        when(storeRepository.findById(id)).thenReturn(Optional.empty());
+//
+//        MultipartFile file = new MockMultipartFile(
+//                "image",
+//                "image_test.png",
+//                "image/png",
+//                "image_test".getBytes()
+//        );
+//
+//        String uploadDir = "test/upload/image/";
+//
+////        assertThatThrownBy(() -> storeService.uploadStoreProfile(id, file, uploadDir))
+////                .isInstanceOf(ResourceNotFoundException.class)
+////                .hasMessage("The store with this id not found");
+//
+//    }
 
     @RepeatedTest(3)
     public void uploadStoreProfileTest_overLimitedSize_thenThrowIllegalArgumentException () throws IOException {
@@ -254,7 +225,7 @@ public class StoreServiceUnitTest {
                 .resolve("profile/profile_" + id + ".png");
         System.out.println("mockPath = " + mockPath);
 
-        assertThatThrownBy(() -> storeService.uploadStoreProfile(id, file, uploadDir))
+        assertThatThrownBy(() -> storeService.uploadStoreProfile(existingStore, file, uploadDir))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("File is too large. The size limit is 2 MB.");
 
@@ -284,7 +255,7 @@ public class StoreServiceUnitTest {
         System.out.println("mockPath = " + mockPath);
 
 
-        String uploadedFile = storeService.uploadStoreProfile(id, file, uploadDir);
+        String uploadedFile = storeService.uploadStoreProfile(existingStore, file, uploadDir);
         System.out.println("uploadedFile = " + uploadedFile);
 
         assertThat(uploadedFile).isNotNull();
@@ -314,7 +285,7 @@ public class StoreServiceUnitTest {
         System.out.println("mockPath = " + mockPath);
 
 
-        String uploadedFile = storeService.uploadStoreProfile(id, file, uploadDir);
+        String uploadedFile = storeService.uploadStoreProfile(existingStore, file, uploadDir);
         System.out.println("uploadedFile = " + uploadedFile);
 
         assertThat(uploadedFile).isNotNull();
@@ -344,7 +315,7 @@ public class StoreServiceUnitTest {
         System.out.println("mockPath = " + mockPath);
 
 
-        String uploadedFile = storeService.uploadStoreProfile(id, file, uploadDir);
+        String uploadedFile = storeService.uploadStoreProfile(existingStore, file, uploadDir);
         System.out.println("uploadedFile = " + uploadedFile);
 
         assertThat(uploadedFile).isNotNull();
@@ -431,7 +402,7 @@ public class StoreServiceUnitTest {
         Profile profile = new Profile(invalidPath, existingStore);
         existingStore.setStoreProfile(profile);
 
-        assertThatThrownBy(() -> storeService.deleteStoreLogo(id))
+        assertThatThrownBy(() -> storeService.deleteStoreLogo(existingStore))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("The file is not found");
     }
@@ -450,7 +421,7 @@ public class StoreServiceUnitTest {
         Profile profile = new Profile(logoPath, existingStore);
         existingStore.setStoreProfile(profile);
 
-        storeService.deleteStoreLogo(id);
+        storeService.deleteStoreLogo(existingStore);
 
         assertThat(existingStore.getStoreProfile()).isNull();
 

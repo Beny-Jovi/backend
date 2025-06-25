@@ -1,6 +1,7 @@
 package com.marketplace.StoreManagement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marketplace.Exception.ResourceDuplicationException;
 import com.marketplace.Exception.ResourceNotFoundException;
 import com.marketplace.StoreManagement.api.*;
 import com.marketplace.StoreManagement.domain.*;
@@ -15,14 +16,20 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -304,7 +311,237 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
+    @Order(6)
+    public void updateStoreNameTest_thenReturnCreated() throws Exception {
+        String accountId = "account_id";
+        String storeId = "store_id";
+        String storeName = "store_name_test";
+
+        Role createdRole = new Role(Role.RoleEnum.SELLER);
+        Set<Role> roles1 = new HashSet<>();
+        roles1.add(createdRole);
+
+        StoreRequestDTO storeDto = new StoreRequestDTO(storeName);
+
+        Store store1 = Store.builder()
+                .id("store_id1")
+                .name("store_name_1")
+                .build();
+        Account account1 = Account.builder()
+                .id("account_id1")
+                .name("account_name_1")
+                .accountRoles(roles1)
+                .store(store1)
+                .build();
+//                .accountRoles()
+        store1.setAccount(account1);
+
+        StoreDto result = new StoreDto(storeName);
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .build();
+
+        createdStore.setAccount(account);
+
+        given(accountService.saveAccount(account)).willReturn(account);
+        given(accountService.saveAccount(account1)).willReturn(account1);
+        given(storeService.hasStoreNameSame("store_name_2")).willReturn(false);
+        Boolean checkStoreName = storeService.hasStoreNameSame("store_name_2");
+        given(accountService.getAccountById(accountId)).willReturn(Optional.of(account));
+        Account existingAccount = accountService.getAccountById(accountId).get();
+        existingAccount.setStore(createdStore);
+        Store existingStore = existingAccount.getStore();
+        given(accountService.updateStoreName(accountId, checkStoreName, storeDto)).willReturn(storeName);
+        String existingStoreName = accountService.updateStoreName(accountId, checkStoreName, storeDto);
+
+        ResultActions response = mockMvc.perform(put("http://localhost:8080/api/sellers/{account_id}/stores/store", accountId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(result)
+        ));
+
+        response.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Store name successfully changes"))
+                .andExpect(jsonPath("$.data").value(existingStoreName));
+
+    }
+
+    @RepeatedTest(3)
     @Order(7)
+    public void updateStoreNameTest_whenAccountNotFound_thenThrowIllegalArgumentException() throws Exception {
+        String accountId = "invalid_id";
+        String storeId = "store_id";
+        String storeName = "store_name_test";
+
+        StoreRequestDTO storeDto = new StoreRequestDTO(storeName);
+        StoreDto result = new StoreDto(storeName);
+        Role createdRole = new Role(Role.RoleEnum.SELLER);
+        Set<Role> roles1 = new HashSet<>();
+        roles1.add(createdRole);
+
+
+        Store store1 = Store.builder()
+                .id("store_id1")
+                .name("store_name_1")
+                .build();
+        Account account1 = Account.builder()
+                .id("account_id1")
+                .name("account_name_1")
+                .accountRoles(roles1)
+                .store(store1)
+                .build();
+//                .accountRoles()
+        store1.setAccount(account1);
+
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .build();
+
+        createdStore.setAccount(account);
+
+        given(accountService.saveAccount(account)).willReturn(account);
+        given(accountService.saveAccount(account1)).willReturn(account1);
+        given(storeService.hasStoreNameSame("store_name_2")).willReturn(false);
+        Boolean checkStoreName = storeService.hasStoreNameSame("store_name_2");
+        given(accountService.getAccountById(accountId)).willReturn(Optional.empty());
+        given(accountService.updateStoreName(accountId, checkStoreName, storeDto)).willThrow(new ResourceNotFoundException("Seller with this id is not found " + accountId));
+
+        ResultActions response = mockMvc.perform(put("http://localhost:8080/api/sellers/{account_id}/stores/store", accountId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(result)
+                ));
+
+        response.andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Seller with this id is not found " + accountId));
+
+    }
+
+//    @RepeatedTest(3)
+//    @Order(8)
+//    public void updateStoreNameTest_whenStoreRequestDtoLessThan2Char_thenThrowIllegalArgumentException() throws Exception {
+//
+//    }
+//
+//    @RepeatedTest(3)
+//    @Order(9)
+//    public void updateStoreNameTest_whenStoreRequestDtoOverThan20Char_thenThrowIllegalArgumentException() throws Exception {
+//
+//    }
+
+    @RepeatedTest(3)
+    @Order(10)
+    public void updateStoreNameTest_whenAccountHasNoStore_thenThrowIllegalArgumentException() throws Exception {
+        String accountId = "account_id";
+        String storeId = "store_id";
+        String storeName = "store_name_test";
+
+        Role createdRole = new Role(Role.RoleEnum.SELLER);
+        Set<Role> roles1 = new HashSet<>();
+        roles1.add(createdRole);
+
+        StoreRequestDTO storeDto = new StoreRequestDTO(storeName);
+
+        Store store1 = Store.builder()
+                .id("store_id1")
+                .name("store_name_1")
+                .build();
+        Account account1 = Account.builder()
+                .id("account_id1")
+                .name("account_name_1")
+                .accountRoles(roles1)
+                .store(store1)
+                .build();
+//                .accountRoles()
+        store1.setAccount(account1);
+
+        StoreDto result = new StoreDto(storeName);
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .build();
+
+        createdStore.setAccount(account);
+
+        given(accountService.saveAccount(account)).willReturn(account);
+        given(accountService.saveAccount(account1)).willReturn(account1);
+        given(storeService.hasStoreNameSame("store_name_2")).willReturn(false);
+        Boolean checkStoreName = storeService.hasStoreNameSame("store_name_2");
+        given(accountService.getAccountById(accountId)).willReturn(Optional.of(account));
+        Account existingAccount = accountService.getAccountById(accountId).get();
+        given(accountService.updateStoreName(accountId, checkStoreName, storeDto)).willThrow(new IllegalArgumentException("Store has not created yet"));
+
+        ResultActions response = mockMvc.perform(put("http://localhost:8080/api/sellers/{account_id}/stores/store", accountId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(result)
+                ));
+
+        response.andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Store has not created yet"));
+
+    }
+
+    @RepeatedTest(3)
+    @Order(11)
+    public void updateStoreNameTest_whenStoreHasTheSameNameWithOthers_thenThrowResourceDuplicationException() throws Exception {
+        String storeId = "store_id";
+
+        String duplicateStoreName = "store_name_1";
+
+        StoreRequestDTO storeReqDto = new StoreRequestDTO(duplicateStoreName);
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name("store_name")
+                .build();
+
+        createdStore.setAccount(account);
+
+        Store store1 = Store.builder()
+                .id("store_id1")
+                .name(duplicateStoreName)
+                .build();
+        Account account1 = Account.builder()
+                .id("account_id1")
+                .name("account_name_1")
+                .store(store1)
+                .build();
+        account.setStore(createdStore);
+
+        given(accountService.saveAccount(account)).willReturn(account);
+        given(accountService.saveAccount(account1)).willReturn(account1);
+        given(storeService.getAllStores()).willReturn(List.of(createdStore, store1));
+        List<Store> allStores = storeService.getAllStores();
+        for (int i = 0; i < allStores.size(); i++) {
+            Store existingStore = allStores.get(i);
+            System.out.println("existingStore = " + existingStore);
+            System.out.println("existingStore.getName() = " + existingStore.getName());
+            System.out.println("existingStore.getId() = " + existingStore.getId());
+        }
+        given(storeService.hasStoreNameSame(duplicateStoreName)).willReturn(true);
+        Boolean checkName = storeService.hasStoreNameSame(duplicateStoreName);
+        System.out.println("checkName = " + checkName);
+        given(accountService.getAccountById(account.getId())).willReturn(Optional.of(account));
+        Account existingAccount = accountService.getAccountById(account.getId()).get();
+        given(accountService.updateStoreName(account.getId(), checkName, storeReqDto)).willThrow(new ResourceDuplicationException("The name of the store is already been taken"));
+        Store existingStore = existingAccount.getStore();
+        System.out.println("existingStore = " + existingStore);
+
+        ResultActions response = mockMvc.perform(put("http://localhost:8080/api/sellers/{account_id}/stores/store", existingAccount.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(storeReqDto)
+                ));
+//
+        response.andDo(print())
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.message").value("The name of the store is already been taken"));
+
+    }
+
+    @RepeatedTest(3)
+    @Order(12)
     public void getStoreWithAnAccountTest_whenAccountIdNotFound_thenThrowResourceNotFoundException() throws Exception {
         String invalidId = "invalid_id";
         String storeId = "store_id";
@@ -332,7 +569,7 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(8)
+    @Order(13)
     public void getStoreWithAnAccountTest_whenStoreIsNull_thenThrowIllegalArgumentException() throws Exception {
         String accountId = "account_id";
         String storeId = "store_id";
@@ -364,7 +601,7 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(9)
+    @Order(14)
     public void doesAccountHaveStoreTest_whenSuccess_thenReturnTrueAndResponseEntityOk() throws Exception {
         String accountId = "account_id";
         String storeId = "store_id";
@@ -394,7 +631,7 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(10)
+    @Order(15)
     public void doesAccountHaveStoreTest_whenSuccess_thenReturnFalseAndResponseEntityOk() throws Exception {
         String accountId = "account_id";
         String storeId = "store_id";
@@ -423,7 +660,7 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(11)
+    @Order(16)
     public void doesAccountHaveStoreTest_whenAccountNotFound_thenThrowResourceNotFoundException() throws Exception {
         String sellerId = "invalid_id";
 
@@ -439,7 +676,7 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(12)
+    @Order(17)
     public void getAllStores_thenReturnStatusOK() throws Exception {
         String storeId = "store_id";
         String storeName = "store_name_test";
@@ -486,7 +723,7 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(12)
+    @Order(18)
     public void getAllStores_whenStoreHasNotCreated_thenReturnStatusOK() throws Exception {
         ResultActions response = mockMvc.perform(get("http://localhost:8080/api/stores")
         );
@@ -498,8 +735,8 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(13)
-    public void updateStoreLogoTest_thenReturnCreatedStatus() throws Exception {
+    @Order(19)
+    public void updateStoreLogoTest_whenFileIsPng_thenReturnCreatedStatus() throws Exception {
 
         String storeId = "store_id";
         String storeName = "store_name_test";
@@ -528,8 +765,8 @@ public class StoreManagementControllerTest {
         given(storeService.getStoreById(storeId)).willReturn(Optional.of(createdStore));
         Store existingStore = storeService.getStoreById(storeId).get();
         System.out.println("existingStore = " + existingStore);
-        given(storeService.uploadStoreProfile(storeId, file, uploadDir)).willReturn(mockPath.toString());
-        String uploadPath = storeService.uploadStoreProfile(storeId, file, uploadDir);
+        given(storeService.uploadStoreProfile(existingStore, file, uploadDir)).willReturn(mockPath.toString());
+        String uploadPath = storeService.uploadStoreProfile(existingStore, file, uploadDir);
         System.out.println("uploadPath = " + uploadPath);
         
         ResultActions response = mockMvc.perform(multipart("http://localhost:8080/api/stores/{store_id}/upload_image/image", storeId)
@@ -543,7 +780,97 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(14)
+    @Order(20)
+    public void updateStoreLogoTest_whenFileIsJPG_thenReturnCreatedStatus() throws Exception {
+
+        String storeId = "store_id";
+        String storeName = "store_name_test";
+
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .account(account)
+                .build();
+        account.setStore(createdStore);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "image",
+                "image_test.jpg",
+                "image/jpg",
+                "image_test".getBytes()
+        );
+
+        String uploadDir = "test/upload/image/";
+        Profile profile = new Profile(uploadDir, createdStore);
+        createdStore.setStoreProfile(profile);
+        Path mockPath = Paths.get(uploadDir)
+                .resolve(storeId)
+                .resolve("profile/profile_" + storeId + ".jpg");
+
+        given(storeService.getStoreById(storeId)).willReturn(Optional.of(createdStore));
+        Store existingStore = storeService.getStoreById(storeId).get();
+        System.out.println("existingStore = " + existingStore);
+        given(storeService.uploadStoreProfile(existingStore, file, uploadDir)).willReturn(mockPath.toString());
+        String uploadPath = storeService.uploadStoreProfile(existingStore, file, uploadDir);
+        System.out.println("uploadPath = " + uploadPath);
+
+        ResultActions response = mockMvc.perform(multipart("http://localhost:8080/api/stores/{store_id}/upload_image/image", storeId)
+                .file(file)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+
+        response.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Image successfully to uploaded"));
+    }
+
+    @RepeatedTest(3)
+    @Order(21)
+    public void updateStoreLogoTest_whenFileIsJPEG_thenReturnCreatedStatus() throws Exception {
+
+        String storeId = "store_id";
+        String storeName = "store_name_test";
+
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .account(account)
+                .build();
+        account.setStore(createdStore);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "image",
+                "image_test.jpeg",
+                "image/jpeg",
+                "image_test".getBytes()
+        );
+
+        String uploadDir = "test/upload/image/";
+        Profile profile = new Profile(uploadDir, createdStore);
+        createdStore.setStoreProfile(profile);
+        Path mockPath = Paths.get(uploadDir)
+                .resolve(storeId)
+                .resolve("profile/profile_" + storeId + ".jpeg");
+
+        given(storeService.getStoreById(storeId)).willReturn(Optional.of(createdStore));
+        Store existingStore = storeService.getStoreById(storeId).get();
+        System.out.println("existingStore = " + existingStore);
+        given(storeService.uploadStoreProfile(existingStore, file, uploadDir)).willReturn(mockPath.toString());
+        String uploadPath = storeService.uploadStoreProfile(existingStore, file, uploadDir);
+        System.out.println("uploadPath = " + uploadPath);
+
+        ResultActions response = mockMvc.perform(multipart("http://localhost:8080/api/stores/{store_id}/upload_image/image", storeId)
+                .file(file)
+                .accept(MediaType.APPLICATION_JSON)
+        );
+
+        response.andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.message").value("Image successfully to uploaded"));
+    }
+
+    @RepeatedTest(3)
+    @Order(22)
     public void updateStoreLogoTest_whenStoreNotFound_thenThrowNotFound() throws Exception {
 
         String invalidId = "invalidId";
@@ -559,7 +886,6 @@ public class StoreManagementControllerTest {
         String uploadDir = "test/upload/image/";
 
         given(storeService.getStoreById(invalidId)).willReturn(Optional.empty());
-        given(storeService.uploadStoreProfile(invalidId, file, uploadDir)).willThrow(new ResourceNotFoundException("The store with this id not found"));
         ResultActions response = mockMvc.perform(multipart("http://localhost:8080/api/stores/{store_id}/upload_image/image", invalidId)
                 .file(file)
                 .accept(MediaType.APPLICATION_JSON)
@@ -570,11 +896,18 @@ public class StoreManagementControllerTest {
     }
 
     @RepeatedTest(3)
-    @Order(14)
+    @Order(23)
     public void updateStoreLogoTest_whenFileIsGif_thenThrowIllegalArgumentException() throws Exception {
 
         String storeId = "store_id";
         String storeName = "store_name_test";
+
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .account(account)
+                .build();
+        account.setStore(createdStore);
 
         MockMultipartFile file = new MockMultipartFile(
                 "image",
@@ -584,19 +917,84 @@ public class StoreManagementControllerTest {
         );
 
         String uploadDir = "test/upload/image/";
-//        Profile profile = new Profile(uploadDir, createdStore);
-//        createdStore.setStoreProfile(profile);
+        Profile profile = new Profile(uploadDir, createdStore);
+        createdStore.setStoreProfile(profile);
 
-        given(storeService.getStoreById(storeId)).willReturn(Optional.of(store));
-        given(storeService.uploadStoreProfile(storeId, file, uploadDir)).willThrow(new IllegalArgumentException("Invalid file type. Only PNG or JPEG or JPG files are allowed"));
-        ResultActions response = mockMvc.perform(multipart("http://localhost:8080/api/stores/{store_id}/upload_image/image", storeId)
+        given(storeService.getStoreById(storeId)).willReturn(Optional.of(createdStore));
+        Store existingStore = storeService.getStoreById(storeId).get();
+        given(storeService.uploadStoreProfile(existingStore, file, uploadDir)).willThrow(new IllegalArgumentException("Invalid file type. Only PNG or JPEG or JPG files are allowed"));
+        ResultActions response = mockMvc.perform(multipart("http://localhost:8080/api/stores/{store_id}/upload_image/image", existingStore.getId())
                 .file(file)
                 .accept(MediaType.APPLICATION_JSON)
         );
 
         response.andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Invalid file type. Only PNG or JPEG or JPG files are allowed"));
     }
 
+    @RepeatedTest(3)
+    @Order(24)
+    public void deleteStoreLogoTest_thenReturnOKStatus() throws Exception {
+        String storeId = "store_id";
+        String storeName = "store_name_test";
+
+        Store createdStore = Store.builder()
+                .id(storeId)
+                .name(storeName)
+                .account(account)
+                .build();
+        account.setStore(createdStore);
+
+        String uploadDir = "test/upload/image/";
+        Profile profile = new Profile(uploadDir, createdStore);
+        createdStore.setStoreProfile(profile);
+
+        given(storeService.getStoreById(storeId)).willReturn(Optional.of(createdStore));
+        Store existingStore = storeService.getStoreById(storeId).get();
+        willDoNothing().given(storeService).deleteStoreLogo(existingStore);
+
+        ResultActions response = mockMvc.perform(delete("http://localhost:8080/api/stores/{store_id}/uploaded_image", existingStore.getId()));
+
+        response.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Image successfully to deleted"));
+
+    }
+
+//    @RepeatedTest(3)
+//    @Order(25)
+//    public void deleteStoreLogoTest_whenFileDoesNotExist_thenReturnOKStatus() throws Exception {
+//        String storeId = "store_id";
+//        String storeName = "store_name_test";
+//
+//        Store createdStore = Store.builder()
+//                .id(storeId)
+//                .name(storeName)
+//                .account(account)
+//                .build();
+//        account.setStore(createdStore);
+//
+//        Path tempDir = Files.createTempDirectory("test");
+//        Path tempFile = Files.createFile(tempDir.resolve("logo.png"));
+//        String logoPath = tempFile.toString();
+//
+//        String profilePath = "/profile/path";
+//
+//        String invalidPath = "test/invalid/path";
+//        Profile profile = new Profile(logoPath, createdStore);
+//        createdStore.setStoreProfile(profile);
+//
+//        given(storeService.getStoreById(storeId)).willReturn(Optional.of(createdStore));
+//        Store existingStore = storeService.getStoreById(storeId).get();
+//        willDoNothing().given(storeService).deleteStoreLogo(existingStore);
+//
+//        ResultActions response = mockMvc.perform(delete("http://localhost:8080/api/stores/{store_id}/uploaded_image", existingStore.getId()));
+//
+//        response.andDo(print())
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.message").value("Image successfully to deleted"));
+//
+//    }
 
 }

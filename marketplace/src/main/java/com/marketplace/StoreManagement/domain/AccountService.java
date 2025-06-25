@@ -49,7 +49,7 @@ public class AccountService {
             throw new ResourceDuplicationException("The name of the store is already been taken");
         }
         account.getAccountRoles().add(role);
-        role.getSellers().add(account);
+        role.addSeller(account);
         StoreDetail storeDetail = StoreDetail.builder()
             .rate(0)
             .numberOfSales(0)

@@ -7,6 +7,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
+import org.h2.jdbc.JdbcSQLDataException;
+import org.hibernate.LazyInitializationException;
+import org.hibernate.MappingException;
+import org.hibernate.query.SemanticException;
+import org.hibernate.tool.schema.spi.SchemaManagementException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,11 +39,12 @@ public class GlobalHandlerController {
     //     return new ResponseEntity<Object>(apiError, apiError.getStatus());
     // }
 
+//    just change the response entity body when production
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneralExceptionError(Exception ex) {
         log.error("General error exception", ex.getMessage());
         List<String> errors = Collections.singletonList(ex.getMessage());
-        log.error("Error in Exception class, cause is: {}", ex.getMessage());  
+        log.error("Error in Exception class, cause is: {}", ex.getMessage());
         return new ResponseEntity<>(getErrorsMap(errors), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -50,9 +56,10 @@ public class GlobalHandlerController {
         return new ResponseEntity<>("Please do not enter the empty file", HttpStatus.BAD_REQUEST);
     }
 
+//    just change the response entity body when production
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeExceptionError(RuntimeException ex) {
-        log.error("Error in Runtime Exception class, cause is: {}", ex.getMessage());  
+        log.error("Error in Runtime Exception class, cause is: {}", ex.getMessage());
         List<String> errors = Collections.singletonList(ex.getMessage());
         return new ResponseEntity<>(getErrorsMap(errors), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -119,5 +126,50 @@ public class GlobalHandlerController {
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    //    this is just in development
+    @ExceptionHandler(MappingException.class)
+    public ResponseEntity<Object> handleMappingException(MappingException ex) {
+        log.error("Unable to locate persister: {}", ex.getMessage());
+        log.error("this is what is cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    //    this is just in development
+    @ExceptionHandler(SchemaManagementException.class)
+    public ResponseEntity<Object> handleSchemaManagementException(SchemaManagementException ex) {
+        log.error("Schema-validation: missing table: {}", ex.getMessage());
+        log.error("this is what is cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(JdbcSQLDataException.class)
+    public ResponseEntity<Object> handleJDBC_DataException(JdbcSQLDataException ex) {
+        log.error("Data conversion error converting: {}", ex.getMessage());
+        log.error("this is what is cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(LazyInitializationException.class)
+    public ResponseEntity<Object> handleLazyInitializeException(LazyInitializationException ex) {
+        log.error("Lazy initialize exception: {}", ex.getMessage());
+        log.error("this is what is cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Object> handleIllegalException(IllegalStateException ex) {
+        log.error("Transaction already active: {}", ex.getMessage());
+        log.error("this is what is cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(SemanticException.class)
+    public ResponseEntity<Object> handleSemanticException(SemanticException ex) {
+        log.error("Cannot compare left expression of type: {}", ex.getMessage());
+        log.error("this is what is cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
 }

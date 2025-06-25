@@ -54,8 +54,4 @@ public class Account extends Auditable {
     )
     private Store store;
 
-    public void addRoleToAccount(Role role) {
-        accountRoles.add(role);
-    }
-
 }

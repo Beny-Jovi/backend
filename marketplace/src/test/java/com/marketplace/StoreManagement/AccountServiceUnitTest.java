@@ -96,7 +96,6 @@ public class AccountServiceUnitTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("account with this id is not found" + id);
 
-
     }
 
     @RepeatedTest(3)
