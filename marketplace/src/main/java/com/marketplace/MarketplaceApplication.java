@@ -10,7 +10,17 @@ import org.springframework.cache.annotation.EnableCaching;
 public class MarketplaceApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("spring.devtools.restart.enabled", "false");
 		SpringApplication.run(MarketplaceApplication.class, args);
 	}
+
+//	@Bean
+//	public WebMvcConfigurer corsConfigurer() {
+//		return new WebMvcConfigurer() {
+//			public void addCorsMappings(CorsRegistry registry) {
+//				registry.addMapping("/**").allowedOrigins("http://localhost:4200");
+//			}
+//		};
+//	}
 
 }

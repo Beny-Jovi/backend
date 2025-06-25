@@ -85,8 +85,8 @@ public class UserAccountController {
     @PostMapping("/users") // the plan this url redirect into /{id}
     public ResponseEntity<Object> createAccount(@RequestBody @Valid UserAccountCreationDTO accountDTO) {
         Role role = roleService.getOrCreateRoleAccount(Role.RoleEnum.BUYER);
-        UserAccountDTO dto = userService.createUserAccount(role, mapper, accountDTO);
-        return ResponseHandler.generateResponse("Successfully to create users", HttpStatus.CREATED, dto);
+        userService.createUserAccount(role, mapper, accountDTO);
+        return ResponseHandler.generateResponse("Register Successfully", HttpStatus.CREATED, "");
     }
 
     @Operation(summary = "Get User by id here")

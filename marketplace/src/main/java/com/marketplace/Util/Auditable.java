@@ -1,6 +1,6 @@
 package com.marketplace.Util;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,10 +19,10 @@ public abstract class Auditable {
     
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Column(name = "updated_times", nullable = false)
     @LastModifiedDate
-    private LocalDateTime updatedTimes;
+    private Date updatedTimes;
 
 }

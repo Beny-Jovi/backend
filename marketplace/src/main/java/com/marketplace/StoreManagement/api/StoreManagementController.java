@@ -1,5 +1,6 @@
 package com.marketplace.StoreManagement.api;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.marketplace.StoreManagement.domain.*;
@@ -67,25 +68,43 @@ public class StoreManagementController {
         return ResponseEntity.ok(checkAccountHasStore);
     }
 
+
     @GetMapping("/stores/{store_id}/profile")
     public ResponseEntity<Object> getStoreLogo(@PathVariable("store_id") String storeId) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(storeService.getStoreLogo(storeId));
-
+        
+        String storeLogo = storeService.getStoreLogo((storeId));
+        System.out.println("storeLogo = " + storeLogo);
+        return ResponseHandler.generateResponse("Successfully retrive logo", HttpStatus.OK, storeLogo);
     }
 
     @PostMapping("/stores/{store_id}/upload_image/image")
     public ResponseEntity<Object> updateStoreLogo(@PathVariable("store_id") String storeId, @RequestPart("image") MultipartFile file) {
-        String uploadedFile = storeService.uploadStoreProfile(storeId, file, uploadDir);
-        return ResponseHandler.generateResponse("Image successfully to uploaded", HttpStatus.CREATED, uploadedFile);
+        Store store = storeService.getStoreById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("The store with this id not found"));
+        if (!file.getContentType().equals("image/png") &&
+                !file.getContentType().equals("image/jpeg") &&
+                !file.getContentType().equals("image/jpg")
+        ) {
+            throw new IllegalArgumentException("Invalid file type. Only PNG or JPEG or JPG files are allowed");
+        }
+        try {
+            String uploadedFile = storeService.uploadStoreProfile(store, file, uploadDir);
+            return ResponseHandler.generateResponse("Image successfully to uploaded", HttpStatus.CREATED, uploadedFile);
+
+        } catch (IOException e) {
+            log.error("file upload error" + e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
+
+        }
 
     }
 
     @DeleteMapping("/stores/{store_id}/uploaded_image")
     public ResponseEntity<Object> deleteStoreLogo(@PathVariable("store_id") String storeId) {
-        storeService.deleteStoreLogo(storeId);
-        return ResponseHandler.generateResponse("Image successfully to deleted", HttpStatus.CREATED, "");
+        Store store = storeService.getStoreById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Store with this id not found"));
+        storeService.deleteStoreLogo(store);
+        return ResponseHandler.generateResponse("Image successfully to deleted", HttpStatus.OK, "");
 
     }
     
@@ -93,7 +112,8 @@ public class StoreManagementController {
     @PostMapping("/sellers/{account_id}/stores")
     public ResponseEntity<Object> createStore(@PathVariable("account_id") String accountId, @RequestBody @Valid StoreRequestDTO storeDto) {
         Boolean checkIntersectionStoreName = storeService.hasStoreNameSame(storeDto.storeName());
-        Store createdStore = accountService.createStore(accountId, roleService.getOrCreateRoleAccount(Role.RoleEnum.SELLER), checkIntersectionStoreName, storeDto);
+        Role role = roleService.getOrCreateRoleAccount(Role.RoleEnum.SELLER);
+        Store createdStore = accountService.createStore(accountId, role, checkIntersectionStoreName, storeDto);
         StoreDto parseToStoreDto = mapper.toStoreDto(createdStore);
         return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, parseToStoreDto);
     }

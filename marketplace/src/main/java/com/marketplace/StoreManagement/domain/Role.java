@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name = "Role_inStore")
@@ -35,10 +36,13 @@ public class Role {
     private RoleEnum roleName;
 
     @ManyToMany(mappedBy = "accountRoles")
-    private Set<Account> sellers;
+    private Set<Account> sellers = new HashSet<>();
 
     public Role(RoleEnum roleName) {
         this.setRoleName(roleName);
     }
 
+    public void addSeller(Account account) {
+        sellers.add(account);
+    }
 }

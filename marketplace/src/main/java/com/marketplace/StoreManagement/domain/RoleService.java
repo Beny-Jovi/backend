@@ -27,6 +27,8 @@ public class RoleService {
             saveRole(newRole);
             return newRole;
         }
+
+        System.out.println("role = " + role);
         return role;
     }
 

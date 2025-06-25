@@ -1,0 +1,16 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 5.3//EN"
+        "http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="connection.url">jdbc:postgresql://localhost:5432/seller</property>
+        <property name="connection.username">postgres</property>
+        <property name="connection.password">josi123</property>
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.show_sql">false</property>
+        <mapping resource="ProductManagement/Product.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>

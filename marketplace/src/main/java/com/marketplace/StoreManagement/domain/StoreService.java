@@ -49,59 +49,48 @@ public class StoreService {
             .anyMatch(store -> store.getName().contains(storeName));
     }
 
-    public String uploadStoreProfile(String storeId, MultipartFile file, String uploadDir) {
-        Store store = getStoreById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("The store with this id not found"));
-        System.out.println("store = " + store);
-        if (!file.getContentType().equals("image/png") &&
-                !file.getContentType().equals("image/jpeg") &&
-                !file.getContentType().equals("image/jpg")
-        ) {
-            throw new IllegalArgumentException("Invalid file type. Only PNG or JPEG or JPG files are allowed");
+public String uploadStoreProfile(Store store, MultipartFile file, String uploadDir) throws IOException {
+
+        if (file.getSize() > 2_000_000) {
+            throw new IllegalArgumentException("File is too large. The size limit is 2 MB.");
         }
-
-        try {
-            if (file.getSize() > 2_000_000) {
-                throw new IOException("File is too large. The size limit is 2 MB.");
-            }
-
-            String fileName = file.getOriginalFilename().replace(file.getOriginalFilename(), "profile_" + store.getId() + "." + ImageName.getImageFileExtensions(file.getOriginalFilename()));
-            String storeIdImageDirectory = store.getId();
-            String profileDirectory = "/profile/";
-            Path path = Paths.get(uploadDir.toString()).resolve(storeIdImageDirectory + profileDirectory + fileName);
-            if (!Files.exists(path)) {
-                Files.createDirectories(path);
-            }
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-            Profile pictureProfile = new Profile(path.toString(), store);
-            store.setStoreProfile(pictureProfile);
-            saveStore(store);
-            return path.toString();
-
-        } catch (IOException e) {
-            log.error("file upload error" + e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
-
+        String fileName = file.getOriginalFilename().replace(file.getOriginalFilename(), "profile_" + store.getId() + "." + ImageName.getImageFileExtensions(file.getOriginalFilename()));
+        String storeIdImageDirectory = store.getId();
+        String profileDirectory = "/profile/";
+        Path path = Paths.get(uploadDir.toString()).resolve(storeIdImageDirectory + profileDirectory + fileName);
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
         }
+        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        Profile pictureProfile = new Profile(path.toString(), store);
+        store.setStoreProfile(pictureProfile);
+        saveStore(store);
+        return path.toString();
+
+
     }
 
     @Transactional(readOnly = true)
     public String getStoreLogo(String storeId) {
         Store store = getStoreById(storeId)
                 .orElseThrow(() -> new ResourceNotFoundException("The store with this id not found"));
+        if (store.getStoreProfile() == null) {
+            return "There is no profile to retrieve";
+        }
         String storeLogoPath = store.getStoreProfile().getLogoPath();
-
+        System.out.println("storeLogoPath = " + storeLogoPath);
         Path filePath = Paths.get(storeLogoPath);
         if (!Files.exists(filePath)) {
             throw new ResourceNotFoundException("File is not found");
         }
+
+        System.out.println("filePath = " + filePath);
         return filePath.toString();
     }
 
     @Transactional
-    public void deleteStoreLogo(String storeId) {
-        Store store = getStoreById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store with this id not found"));
+    public void deleteStoreLogo(Store store) {
+
         Profile profile = store.getStoreProfile();
         Path filePath = Paths.get(profile.getLogoPath()).normalize();
         if (!Files.exists(filePath)) {

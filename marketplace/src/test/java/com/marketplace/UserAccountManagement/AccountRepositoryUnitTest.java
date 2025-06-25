@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,8 +30,8 @@ public class AccountRepositoryUnitTest {
         Set<Role> sellerRoles = new HashSet<>();
         sellerRoles.add(role);
         User seller = new User("test@test", "test", "test_password", sellerRoles);
-        seller.setCreatedAt(LocalDateTime.now());
-        seller.setUpdatedTimes(LocalDateTime.now());
+        seller.setCreatedAt(new Date());
+        seller.setUpdatedTimes(new Date());
 //        sellerInRoles.add(seller);
 //        seller.setAccountRoles(sellerRoles);
         User savedSeller = sellerRepository.save(seller);
@@ -49,8 +50,8 @@ public class AccountRepositoryUnitTest {
         Set<Role> sellerRoles = new HashSet<>();
         sellerRoles.add(role);
         User seller = new User("test@test", "test", "test_password", sellerRoles);
-        seller.setCreatedAt(LocalDateTime.now());
-        seller.setUpdatedTimes(LocalDateTime.now());
+        seller.setCreatedAt(new Date());
+        seller.setUpdatedTimes(new Date());
         User savedSeller = sellerRepository.save(seller);
         System.out.println("savedSeller.getName() = " + savedSeller.getName());
 
