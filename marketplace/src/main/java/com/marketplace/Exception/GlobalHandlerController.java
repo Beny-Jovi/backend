@@ -6,16 +6,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.servlet.ServletException;
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.h2.jdbc.JdbcSQLDataException;
 import org.hibernate.LazyInitializationException;
 import org.hibernate.MappingException;
+import org.hibernate.TransactionException;
 import org.hibernate.query.SemanticException;
 import org.hibernate.tool.schema.spi.SchemaManagementException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -109,6 +113,39 @@ public class GlobalHandlerController {
         return new ResponseEntity<>(errorBody, HttpStatus.FOUND);
     }
 
+//    jwt exception
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<Object> handleAuthenticationError(InternalAuthenticationServiceException ex) {
+        log.error("Authentication with that email not found, here is the error: ", ex.getMessage());
+        log.error("cause", ex.getCause());
+//        errorBody.put("cause", ex.getCause() != null ? ex.getCause().getMessage() : "Duplicate resource");
+        return new ResponseEntity<>("There is no account with this email", HttpStatus.NOT_FOUND);
+
+    }
+
+    @ExceptionHandler(TransactionException.class)
+    public ResponseEntity<Object> handleTransactionException(TransactionException ex) {
+        log.error("Error occur in transaction : {}", ex.getMessage());
+        log.error("cause", ex.getCause());
+//        errorBody.put("cause", ex.getCause() != null ? ex.getCause().getMessage() : "Duplicate resource");
+        return new ResponseEntity<>("something went wrong", HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ServletException.class)
+    public ResponseEntity<Object> handleServletExceptionError(ServletException ex) {
+        log.error("Servlet Exception Error is : {}", ex.getMessage());
+        log.error("cause", ex.getCause());
+        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handlePasswordNotMatch(BadCredentialsException ex) {
+        log.error("Password wrong", ex.getMessage());
+        log.error("cause", ex.getCause());
+        return new ResponseEntity<>("Password wrong please try again", HttpStatus.BAD_REQUEST);
+    }
+
+//    Internal Spring Exception
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalExceptionError(IllegalArgumentException ex) {
         log.error("Illegal argument exception error", ex.getMessage());
@@ -160,6 +197,7 @@ public class GlobalHandlerController {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Object> handleIllegalException(IllegalStateException ex) {
         log.error("Transaction already active: {}", ex.getMessage());
+//        ex.printStackTrace();
         log.error("this is what is cause", ex.getCause());
         return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -11,6 +11,7 @@
         <property name="connection.password"></property>
         <property name="connection.driver_class">org.postgresql.Driver</property>
         <property name="hibernate.show_sql">false</property>
-        <mapping resource="ProductManagement/Product.hbm.xml" />
+        <mapping resource="Auth/Auth.orm.xml" />
+        <mapping resource="ProductManagement/Product.orm.xml" />
     </session-factory>
 </hibernate-configuration>

@@ -39,3 +39,4 @@ env.properties
 logs
 
 pictures
+hibernate.cfg.xml

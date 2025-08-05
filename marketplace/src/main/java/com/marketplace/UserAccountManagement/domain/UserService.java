@@ -94,20 +94,6 @@ public class UserService {
         return mapper.toAccountDto(foundUser);
     }
 
-    @Transactional
-    public UserAccountDTO createUserAccount(Role role, UserMapper mapper, UserAccountCreationDTO accountDTO) {
-        Boolean isUserCreated = checkUserByEmail(accountDTO.email());
-        if (isUserCreated) {
-            throw new ResourceDuplicationException("the name of the account has already been taken");
-        }
-        if (!accountDTO.repeatPassword().equals(accountDTO.password())) {
-            throw new IllegalArgumentException("repeat password should match the password");
-        }
-        User createdAccount = mapper.toUserAccount(accountDTO);
-        createdAccount.addRole(role);
-        saveUser(createdAccount);
-        return mapper.toAccountDto(createdAccount);
-    }
 
     @Transactional
     public void addUserAddress(String id, UserAddressCreationDto addressDto) {

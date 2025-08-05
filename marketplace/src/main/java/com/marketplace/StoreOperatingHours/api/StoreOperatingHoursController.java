@@ -37,7 +37,7 @@ public class StoreOperatingHoursController {
    @GetMapping("/{store_id}/day_operating_hours")
    public ResponseEntity<List<StoreOperatingHoursDto>> getAllStoreSchedule(@PathVariable("store_id") String storeId) {
        return ResponseEntity
-               .ok(storeDayOperatingHoursService.getAllStoreOperatingHoursSchedule(storeId)) ;
+               .ok(storeDayOperatingHoursService.getAllStoreOperatingHoursSchedules(storeId));
    }
 //
    @GetMapping("/{store_id}/day_operating_hours/today")

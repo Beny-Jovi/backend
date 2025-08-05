@@ -11,6 +11,9 @@ import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -101,8 +104,11 @@ public class StoreServiceImpl implements StoreService {
             tx = session.beginTransaction();
             store = Store.builder()
                     .name(name)
+                    .createdAt(new Date())
+                    .updatedTimes(new Date())
                     .build();
             session.save(store);
+            tx.commit();
         } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();

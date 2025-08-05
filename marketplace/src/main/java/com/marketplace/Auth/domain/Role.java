@@ -1,30 +1,26 @@
-package com.marketplace.UserAccountManagement.domain;
+package com.marketplace.Auth.domain;
 
-import java.util.Set;
-
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity
+@Entity(name = "Role_Auth")
 @Table(name = "`Roles`")
 @Builder
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Role {
-    
+
     @SuppressWarnings("deprecation")
     @Id
     @GeneratedValue(generator = "custom-generator")
     @GenericGenerator(name = "custom-generator",
-        strategy = "com.marketplace.Util.CustomGenerator"
+            strategy = "com.marketplace.Util.CustomGenerator"
     )
     private String id;
 
@@ -40,14 +36,14 @@ public class Role {
     private RoleEnum roleName;
 
     @ManyToMany(mappedBy = "accountRoles")
-    private Set<User> sellers;
+    private Set<User> users = new HashSet<>();
 
     public Role(RoleEnum roleName) {
         this.setRoleName(roleName);
     }
 
-    public void addSellerToRole(User seller) {
-        sellers.add(seller);
+    public void addSellerToRole(User user) {
+        users.add(user);
     }
 
 }

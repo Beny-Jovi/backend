@@ -47,9 +47,6 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public Product createProduct(Product product) {
         Transaction tx = null;
-//        System.out.println("product check in create product = " + product);
-//        System.out.println("product check in create product method = " + product.getSubCategory());
-//        System.out.println("sub category check in create product method = " + product.getSubCategory().getId());
         System.out.println("product.getDisc() = " + product.getDisc());
         System.out.println("product.getProductView() = " + product.getProductView());
         Session session = HibernateUtil.getSessionFactory().openSession();

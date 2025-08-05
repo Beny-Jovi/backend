@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository("UserRepository")
 public interface UserRepository extends JpaRepository<User, String> {
-    @Query("SELECT new com.marketplace.UserAccountManagement.api.UserAccountDTO(u.email, u.name) FROM User u WHERE u.id = :id")
+    @Query("SELECT new com.marketplace.UserAccountManagement.api.UserAccountDTO(u.id, u.email, u.name) FROM User u WHERE u.id = :id")
     UserAccountDTO findAccountEmailAndName(@Param("id") String id);
 
 }

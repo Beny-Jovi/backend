@@ -10,12 +10,6 @@ import java.util.Set;
 public class ProductMapper {
 
     public Product toProduct(Category category, SubCategory subCategory,Store store, ProductReqDto productDto) {
-//        Category category = Category.builder()
-//                .name(productDto.categoryName())
-//                .build();
-//        SubCategory subCategory = SubCategory.builder()
-//                .name(productDto.subCategoryName())
-//                .build();
 
         Disc disc = Disc.builder()
                 .unitOfProduct(productDto.unitOfProduct())
