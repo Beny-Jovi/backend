@@ -42,6 +42,7 @@ public class StoreDayOperatingHoursService {
         if (!foundStore.getStoreDayOperatingHours().isEmpty()) {
             throw new ResourceDuplicationException("The user has already make days now you should update it");
         }
+//        input and sort day to become sunday in index 0 to saturday in index 6
         Set<StoreDayOperatingHours> storeDayOperatingHoursSet = days.stream()
                 .map(day -> {
                     log.info("created Store Days is: {}", day);
@@ -68,6 +69,7 @@ public class StoreDayOperatingHoursService {
         }
         System.out.println("storeIdDto = " + storeIdDto);
         List<StoreDayOperatingHours> storeDayOperatingHoursList = storeDayOperatingHoursRepository.findAllByStoreId(storeId);
+//        input and sort day to become sunday in index 0 to saturday in index 6
         storeDayOperatingHoursList.sort(Comparator.comparing(s -> s.getDay().getDayName().ordinal()));
         for (int i = 0; i < storeDayOperatingHoursList.size(); i++) {
             StoreDayOperatingHours storeDayOperatingHours = storeDayOperatingHoursList.get(i);
@@ -94,9 +96,9 @@ public class StoreDayOperatingHoursService {
             System.out.println("entity = " + entity.getDay());
             StoreRequestOperatingHoursDto dto = storeRequestOperatingHoursDtos.get(i);
             System.out.println("dto = " + dto);
-            LocalTime operatingTimeStart = convertDtoToLocalTime(dto.operatingHourStart(), dto.operatingMinutesStart());
+            LocalTime operatingTimeStart = convertDtoToLocalTime(dto.operatingHourStart());
             System.out.println("store day operating time start: " + operatingTimeStart);
-            LocalTime operatingTimeEnd = convertDtoToLocalTime(dto.operatingHoursEnd(), dto.operatingMinutesEnd());
+            LocalTime operatingTimeEnd = convertDtoToLocalTime(dto.operatingHoursEnd());
             System.out.println("store day operating time end: " + operatingTimeEnd);
             if (operatingTimeStart == null || operatingTimeEnd == null) {
                 entity.setOperatingHoursStart(null);
@@ -110,12 +112,12 @@ public class StoreDayOperatingHoursService {
 
     }
 
-    private LocalTime convertDtoToLocalTime(Integer operatingHours, Integer operatingMinutes) {
-        return operatingHours == null || operatingMinutes == null ? null : LocalTime.of(operatingHours, operatingMinutes);
+    private LocalTime convertDtoToLocalTime(Integer operatingHours) {
+        return operatingHours == null ? null : LocalTime.of(operatingHours, 0);
     }
 
    @Transactional(readOnly = true)
-   public List<StoreOperatingHoursDto> getAllStoreOperatingHoursSchedule(String storeId) {
+   public List<StoreOperatingHoursDto> getAllStoreOperatingHoursSchedules(String storeId) {
        List<StoreIdDto> storeIdDto = storeRepository.getStoreById(storeId);
        if (storeIdDto.isEmpty()) {
            throw new ResourceNotFoundException("Store with this id not found");

@@ -15,21 +15,9 @@ public record StoreRequestOperatingHoursDto(
 
    @JsonProperty
    @Nullable
-   @Min(value = 0, message = "Operating minute start must be ≥0")
-   @Max(value = 59, message = "Operating minute start must be ≤59")
-   Integer operatingMinutesStart,
-
-   @JsonProperty
-   @Nullable
    @Min(value = 0, message = "Operating hour end must be ≥0")
    @Max(value = 23, message = "Operating hour end must be ≤23")
-   Integer operatingHoursEnd,
-
-   @JsonProperty
-   @Nullable
-   @Min(value = 0, message = "Operating minute end must be ≥0")
-   @Max(value = 59, message = "Operating minute end must be ≤59")
-   Integer operatingMinutesEnd
+   Integer operatingHoursEnd
 ) {
 //
 //    public StoreRequestOperatingHoursDto {

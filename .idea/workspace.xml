@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="47b045fc-b353-4f5f-b286-d4f209006944" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/api/AuthController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/api/TokenDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/api/UserAccountCreationDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/api/UserAccountDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/api/UserLoginDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/api/UserMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/AuthEntryPoint.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/AuthService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/AuthTokenFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/JwtService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/Role.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/RoleService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/UserDetailService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Auth/domain/UserService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Config/WebSecurityConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/main/resources/Auth/Auth.orm.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/test/java/com/marketplace/Auth/AuthController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/marketplace/src/test/java/com/marketplace/UserAccountManagement/UserAccountManagementControllerTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Config/CustomCorsConfiguration.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Api/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Api/ProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Domain/ProductServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Domain/ProductServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Domain/Store.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Domain/Store.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Domain/StoreServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/DiscProductManagement/Domain/StoreServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Exception/GlobalHandlerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/Exception/GlobalHandlerController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/MarketplaceApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/MarketplaceApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/StoreOperatingHours/api/StoreOperatingHoursController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/StoreOperatingHours/api/StoreOperatingHoursController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/StoreOperatingHours/api/StoreRequestOperatingHoursDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/StoreOperatingHours/api/StoreRequestOperatingHoursDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/StoreOperatingHours/domain/StoreDayOperatingHoursService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/StoreOperatingHours/domain/StoreDayOperatingHoursService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountControllerMvc.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountControllerMvc.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountCreationDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserAccountDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/api/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/Role.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/RoleRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/RoleService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/java/com/marketplace/UserAccountManagement/domain/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/resources/ProductManagement/Category.hbm.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/resources/ProductManagement/Product.hbm.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/resources/ProductManagement/Product.orm.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/resources/ProductManagement/Store.hbm.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/resources/ProductManagement/product_management.hbm.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/main/resources/hibernate.cfg.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/test/java/com/marketplace/DiscProductManagement/ProductDaoTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/test/java/com/marketplace/DiscProductManagement/ProductDaoTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/marketplace/src/test/java/com/marketplace/UserAccountManagement/AccountRepositoryUnitTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/marketplace/src/test/java/com/marketplace/UserAccountManagement/AccountRepositoryUnitTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Record" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2zDMCsAqug84YJZOX3IGRsgjCEy" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;Application.MarketplaceApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;JUnit.AccountRepositoryUnitTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.ProductDaoTest.saveProductWithStore_thenReturnStoreName.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductDaoTest.testSaveProductWithAssociations.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.StoreManagementControllerTest.executor&quot;: &quot;Coverage&quot;,
+    &quot;JUnit.UserAccountManagementControllerTest.addUserAddress_whenSuccess_returnCreatedStatus.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserAccountManagementControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserAccountManagementControllerTest.getUserByEmail_andReturnUserAccountDto.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserAccountManagementControllerTest.getUserByEmail_whenEmailNotFound_throwNotFoundException.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserAccountManagementControllerTest.getUserByEmail_whenSuccess_returnUserAccountDto.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;jovi-dev&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/andyvin/Documents/web-dev/backend&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="ProductDaoTest.testSaveProductWithAssociations" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="marketplace" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.marketplace.DiscProductManagement.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.marketplace.DiscProductManagement" />
+      <option name="MAIN_CLASS_NAME" value="com.marketplace.DiscProductManagement.ProductDaoTest" />
+      <option name="METHOD_NAME" value="testSaveProductWithAssociations" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserAccountManagementControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="marketplace" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.marketplace.UserAccountManagement.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.marketplace.UserAccountManagement" />
+      <option name="MAIN_CLASS_NAME" value="com.marketplace.UserAccountManagement.UserAccountManagementControllerTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserAccountManagementControllerTest.addUserAddress_whenSuccess_returnCreatedStatus" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="marketplace" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.marketplace.UserAccountManagement.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.marketplace.UserAccountManagement" />
+      <option name="MAIN_CLASS_NAME" value="com.marketplace.UserAccountManagement.UserAccountManagementControllerTest" />
+      <option name="METHOD_NAME" value="addUserAddress_whenSuccess_returnCreatedStatus" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserAccountManagementControllerTest.getUserByEmail_whenEmailNotFound_throwNotFoundException" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="marketplace" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.marketplace.UserAccountManagement.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.marketplace.UserAccountManagement" />
+      <option name="MAIN_CLASS_NAME" value="com.marketplace.UserAccountManagement.UserAccountManagementControllerTest" />
+      <option name="METHOD_NAME" value="getUserByEmail_whenEmailNotFound_throwNotFoundException" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserAccountManagementControllerTest.getUserByEmail_whenSuccess_returnUserAccountDto" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="marketplace" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.marketplace.UserAccountManagement.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.marketplace.UserAccountManagement" />
+      <option name="MAIN_CLASS_NAME" value="com.marketplace.UserAccountManagement.UserAccountManagementControllerTest" />
+      <option name="METHOD_NAME" value="getUserByEmail_whenSuccess_returnUserAccountDto" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.UserAccountManagementControllerTest.addUserAddress_whenSuccess_returnCreatedStatus" />
+        <item itemvalue="JUnit.UserAccountManagementControllerTest" />
+        <item itemvalue="JUnit.UserAccountManagementControllerTest.getUserByEmail_whenEmailNotFound_throwNotFoundException" />
+        <item itemvalue="JUnit.UserAccountManagementControllerTest.getUserByEmail_whenSuccess_returnUserAccountDto" />
+        <item itemvalue="JUnit.ProductDaoTest.testSaveProductWithAssociations" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="47b045fc-b353-4f5f-b286-d4f209006944" name="Changes" comment="" />
+      <created>1751261065383</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1751261065383</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/backend$StoreManagementControllerTest.ic" NAME="StoreManagementControllerTest Coverage Results" MODIFIED="1754045889280" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.marketplace.StoreManagement.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/backend$AccountRepositoryUnitTest.ic" NAME="AccountRepositoryUnitTest Coverage Results" MODIFIED="1754045767511" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.marketplace.UserAccountManagement.*</FILTER>
+    </SUITE>
+  </component>
+</project>

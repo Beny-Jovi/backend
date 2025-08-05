@@ -2,8 +2,6 @@ package com.marketplace.UserAccountManagement.api;
 
 import java.util.List;
 
-import com.marketplace.UserAccountManagement.domain.Role;
-import com.marketplace.UserAccountManagement.domain.RoleService;
 import com.marketplace.UserAccountManagement.domain.User;
 import com.marketplace.UserAccountManagement.domain.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +38,12 @@ import lombok.extern.slf4j.Slf4j;
 public class UserAccountController {
 
     private final UserService userService;
-    private final RoleService roleService;
+//    private final RoleService roleService;
     private final UserMapper mapper;
 
     @Autowired
-    public UserAccountController(UserService userService, RoleService roleService, UserMapper mapper) {
+    public UserAccountController(UserService userService, UserMapper mapper) {
         this.userService = userService;
-        this.roleService = roleService;
         this.mapper = mapper;
     }
 
@@ -63,31 +60,31 @@ public class UserAccountController {
         
     }
 
-    @Operation(summary = "User can be register in here")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Successfully to create users",
-            content = { @Content(mediaType = "application/json", schema = @Schema(implementation = UserAccountDTO.class)) }
-        ),
-        @ApiResponse(responseCode = "302", description = "the email has already been taken",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(
-                    example = "{\"message\": \"Email already registered\", \"cause\": \"Duplicate resource\"}"
-                )
-            )
-        ),
-        @ApiResponse(responseCode = "400", description = "Invalid inserted value",
-            content = { @Content(mediaType = "application/json", schema = @Schema(
-                example = "Invalid inserted value"
-            )) }
-        )
-    })
-    @PostMapping("/users") // the plan this url redirect into /{id}
-    public ResponseEntity<Object> createAccount(@RequestBody @Valid UserAccountCreationDTO accountDTO) {
-        Role role = roleService.getOrCreateRoleAccount(Role.RoleEnum.BUYER);
-        userService.createUserAccount(role, mapper, accountDTO);
-        return ResponseHandler.generateResponse("Register Successfully", HttpStatus.CREATED, "");
-    }
+//    @Operation(summary = "User can be register in here")
+//    @ApiResponses(value = {
+//        @ApiResponse(responseCode = "201", description = "Successfully to create users",
+//            content = { @Content(mediaType = "application/json", schema = @Schema(implementation = UserAccountDTO.class)) }
+//        ),
+//        @ApiResponse(responseCode = "302", description = "the email has already been taken",
+//            content = @Content(
+//                mediaType = "application/json",
+//                schema = @Schema(
+//                    example = "{\"message\": \"Email already registered\", \"cause\": \"Duplicate resource\"}"
+//                )
+//            )
+//        ),
+//        @ApiResponse(responseCode = "400", description = "Invalid inserted value",
+//            content = { @Content(mediaType = "application/json", schema = @Schema(
+//                example = "Invalid inserted value"
+//            )) }
+//        )
+//    })
+//    @PostMapping("/users") // the plan this url redirect into /{id}
+//    public ResponseEntity<Object> createAccount(@RequestBody @Valid UserAccountCreationDTO accountDTO) {
+//        Role role = roleService.getOrCreateRoleAccount(Role.RoleEnum.BUYER);
+//        userService.createUserAccount(role, mapper, accountDTO);
+//        return ResponseHandler.generateResponse("Register Successfully", HttpStatus.CREATED, "");
+//    }
 
     @Operation(summary = "Get User by id here")
     @ApiResponses(value = {
@@ -115,7 +112,7 @@ public class UserAccountController {
                     )) }
             )
     })
-    @GetMapping("/users/email")
+    @GetMapping("/user/email")
     public ResponseEntity<UserAccountDTO> getUserByEmail(@RequestParam String email) {
         UserAccountDTO dto = userService.getUserDataByEmail(email, mapper);
         return ResponseEntity.ok(dto);
@@ -201,6 +198,7 @@ public class UserAccountController {
     })
     @PostMapping("/users/{user_id}/addresses")
     public ResponseEntity<Object> addUserAddresses(@PathVariable("user_id") String id, @RequestBody @Valid UserAddressCreationDto addressDto) {
+        System.out.println("access add user address ");
        userService.addUserAddress(id, addressDto);
        return ResponseHandler.generateResponse("Address successfully added", HttpStatus.CREATED, "");
     }

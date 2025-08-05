@@ -24,11 +24,4 @@ mvn clean package
 - Assertj
 - Mockito
 
-## Configuration
-
-- Configuration properties can be set in `application.properties` or `application.yml`.
-
-## How to Use
-
-- Access the application at `http://localhost:8080`.
-- Alternatively you can access `http://localhost:8080/swagger-ui/index.html`
+I have integrate with react application, so you can change your react port or url in WebConfig.java
