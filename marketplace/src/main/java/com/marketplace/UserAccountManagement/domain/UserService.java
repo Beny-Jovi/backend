@@ -1,8 +1,8 @@
 package com.marketplace.UserAccountManagement.domain;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.marketplace.UserAccountManagement.api.*;
 import com.marketplace.Exception.ResourceDuplicationException;
@@ -94,7 +94,6 @@ public class UserService {
         return mapper.toAccountDto(foundUser);
     }
 
-
     @Transactional
     public void addUserAddress(String id, UserAddressCreationDto addressDto) {
         User foundUser = getUserById(id)
@@ -103,6 +102,7 @@ public class UserService {
             throw new IllegalArgumentException("User has already been deleted");
         }
 
+        System.out.println("foundUser.getAddresses() = " + foundUser.getAddresses());
         Address address = Address.builder()
                 .recipientName(addressDto.recipientName())
                 .recipientNumber(addressDto.recipientNumber())
@@ -113,8 +113,22 @@ public class UserService {
                 .isPicked(false)
                 .user(foundUser)
                 .build();
-
+        System.out.println("address.getCreatedAt() = " + address.getCreatedAt());
         foundUser.addAddress(address);
+        System.out.println("address = " + address);
+//        List<Address> addresses = new ArrayList<>(foundUser.getAddresses().stream()
+//                .filter(address1 -> address1.getIsDeleted() == null || address1.getIsDeleted().equals(false))
+//                .toList());
+//
+//        addresses.sort(new Comparator<Address>() {
+//            @Override
+//            public int compare(Address o1, Address o2) {
+//                System.out.println("o1 = " + o1);
+//                System.out.println("o2 = " + o2);
+//                return o1.getCreatedAt().compareTo(o2.getCreatedAt());
+//            }
+//        });
+//        System.out.println("addresses = " + addresses);
         sellerRepository.save(foundUser);
 
     }
@@ -123,10 +137,78 @@ public class UserService {
     public List<UserAddressDto> getAllUserAddresses(String id) {
         User foundUser = getUserById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+ id));
-        return foundUser.getAddresses().stream()
-                .filter(address -> address.getIsDeleted() ==null || address.getIsDeleted().equals(false))
-                .map(address -> new UserAddressDto(address.getRecipientName(), address.getRecipientNumber(), address.getAddressLabel(), address.getCityAndSubsidiary(), address.getCompleteAddress(), address.getIsPicked()))
+        List<Address> addresses = new ArrayList<>(foundUser.getAddresses().stream()
+                .filter(address -> address.getIsDeleted() == null || address.getIsDeleted().equals(false))
+                .toList());
+
+        addresses.sort(new Comparator<Address>() {
+            @Override
+            public int compare(Address o1, Address o2) {
+                return o1.getCreatedAt().compareTo(o2.getCreatedAt());
+            }
+        });
+
+        return addresses.stream()
+                .map(address -> new UserAddressDto(address.getId(), address.getRecipientName(), address.getRecipientNumber(), address.getAddressLabel(), address.getCityAndSubsidiary(), address.getCompleteAddress(), address.getIsPicked()))
                 .toList();
+//                .map()
+                // fix the comparator
+//                .sorted(Comparator.comparing(address -> address.getCreatedAt().before(address.getCreatedAt())))
+//                .collect(Collectors.toCollection(LinkedList::new));
+
+    }
+
+    @Transactional
+    public List<UserAddressDto> updateSelectedAddress(String userId, IndexRequestUpdateDto indices) {
+//        if(indices.size() != 2) throw new IllegalArgumentException("You need to put the previous index and the current index");
+        User foundUser = getUserById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+ userId));
+        List<Address> addresses = new ArrayList<>(foundUser.getAddresses().stream()
+                .filter(address -> address.getIsDeleted() == null || address.getIsDeleted().equals(false))
+                .toList());
+
+        addresses.sort(new Comparator<Address>() {
+            @Override
+            public int compare(Address o1, Address o2) {
+                return o1.getCreatedAt().compareTo(o2.getCreatedAt());
+            }
+        });
+//        System.out.println("indices = " + indices.get(0));
+//        Integer prevIndex = indices.get(0) == null ? -1 : indices.get(0);
+//        System.out.println("prevIndex = " + prevIndex);
+        if (indices.previousIndex() == -1) {
+            addresses.get(indices.currentIndex()).setIsPicked(true);
+//            foundUser.setAddresses(new HashSet<>(addresses));
+            saveUser(foundUser);
+            return addresses.stream()
+                    .map(address -> new UserAddressDto(address.getId(), address.getRecipientName(), address.getRecipientNumber(), address.getAddressLabel(), address.getCityAndSubsidiary(), address.getCompleteAddress(), address.getIsPicked()))
+//                    .toList();
+                    .collect(Collectors.toCollection(LinkedList::new));
+
+//            addresses.get(indices.get(0)).setIsPicked(false);
+        }
+        System.out.println("indices.previousIndex() = " + indices.previousIndex());
+        System.out.println("indices.currentIndex() = " + indices.currentIndex());
+        if (indices.previousIndex() > addresses.size() || indices.currentIndex() > addresses.size() || indices.currentIndex() < 0) {
+            throw new IllegalArgumentException("There is no index like that");
+        }
+//        iterate address and isPickedList first or you can update all addresses
+//        or just send previous index and current index to this server
+//        List<Address> addresses = new ArrayList<>(foundUser.getAddresses());
+        System.out.println("Not prev index = -1");
+        addresses.get(indices.previousIndex()).setIsPicked(false);
+        addresses.get(indices.currentIndex()).setIsPicked(true);
+//        for (int i = 0; i < addresses.size(); i++) {
+//            addresses.get(i).setIsPicked(isPickedList.get(i));
+//        }
+
+//        foundUser.setAddresses(new HashSet<>(addresses));
+        saveUser(foundUser);
+        return addresses.stream()
+                .map(address -> new UserAddressDto(address.getId(), address.getRecipientName(), address.getRecipientNumber(), address.getAddressLabel(), address.getCityAndSubsidiary(), address.getCompleteAddress(), address.getIsPicked()))
+//                .toList();
+                .collect(Collectors.toCollection(LinkedList::new));
+
     }
 
     @Transactional

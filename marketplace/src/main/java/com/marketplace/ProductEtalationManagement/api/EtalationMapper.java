@@ -12,7 +12,7 @@ public class EtalationMapper {
     }
 
     public EtalationDto toDto(Etalation etalation){
-        return new EtalationDto(etalation.getEtalationName());
+        return new EtalationDto(etalation.getId(), etalation.getEtalationName());
     }
 
 }

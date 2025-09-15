@@ -7,7 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@Entity(name = "SubCategory_ProductManagement")
 @Table(name = "`Sub_Categories`")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -42,5 +42,10 @@ public class SubCategory {
             products = new HashSet<>();
         }
         products.add(product);
+    }
+
+    public SubCategory(SubCategoryEnum subCategoryEnum, Category category) {
+        setName(subCategoryEnum);
+        setCategory(category);
     }
 }

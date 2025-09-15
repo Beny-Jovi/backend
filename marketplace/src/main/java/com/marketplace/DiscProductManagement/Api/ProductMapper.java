@@ -48,7 +48,8 @@ public class ProductMapper {
 
     public ProductDto toDto(Product product) {
         System.out.println("converted product to dto = " + product);
-        Category.CategoryEnum productCategory = product.getSubCategory().getCategory().getName();
+        String productId = product.getId();
+        String productCategory = product.getSubCategory().getCategory().getName();
         SubCategory.SubCategoryEnum productSubCategory = product.getSubCategory().getName();
         Disc.UnitOfProductEnum unitOfProduct = product.getDisc().getUnitOfProduct();
         String discTitle = product.getDisc().getTitle();
@@ -59,7 +60,7 @@ public class ProductMapper {
         int productNumOfView = product.getProductView().getNumberOfView();
         int productOrderMinimum = product.getOrderMinimum();
 
-        return new ProductDto(productCategory, productSubCategory, productOrderMinimum, discTitle, productCondition, productDesc, unitOfProduct, publisher, productRate, productNumOfView);
+        return new ProductDto(productId, productCategory, productSubCategory, productOrderMinimum, discTitle, productCondition, productDesc, unitOfProduct, publisher, productRate, productNumOfView);
     }
 
 }

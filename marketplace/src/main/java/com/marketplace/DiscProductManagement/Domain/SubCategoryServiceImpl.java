@@ -2,6 +2,7 @@ package com.marketplace.DiscProductManagement.Domain;
 
 import com.marketplace.Util.HibernateUtil;
 import jakarta.persistence.TypedQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -11,10 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Slf4j
 public class SubCategoryServiceImpl implements SubCategoryService{
     @Override
     @Transactional
-    public SubCategory getOrCreateSubCategory(Category category) {
+    public SubCategory getSubCategory(Category category) {
         Transaction tx = null;
         SubCategory subCategory = null;
 
@@ -23,27 +25,33 @@ public class SubCategoryServiceImpl implements SubCategoryService{
             query.setParameter("sub_category_name", SubCategory.SubCategoryEnum.DISC);
             List<SubCategory> subCategories = query.getResultList();
             if (subCategories.isEmpty()) {
-                tx = session.beginTransaction();
-                subCategory = SubCategory.builder()
-                        .name(SubCategory.SubCategoryEnum.DISC)
-                        .category(category)
-                        .build();
-                System.out.println("create new sub category: " + subCategory);
-                session.persist(subCategory);
-                tx.commit();
-
+                    throw new IllegalArgumentException("this category hasn't created yet");
             }
             subCategory = subCategories.getFirst();
             System.out.println("get sub category: " + subCategory);
-        } catch (Exception ex) {
-            if(tx != null) {
-                tx.rollback();
-            }
-//            log.error("Something went wrong: ", ex.getMessage());
-            ex.printStackTrace();
         }
         System.out.println("get sub category after try: " + subCategory);
 
+        return subCategory;
+    }
+
+    public SubCategory createSubCategoryTest(Category category) {
+        Transaction tx = null;
+        SubCategory subCategory = null;
+
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            subCategory = new SubCategory(SubCategory.SubCategoryEnum.DISC, category);
+            session.persist(subCategory);
+            tx.commit();
+            return subCategory;
+        } catch (Exception ex) {
+            log.error("transaction error");
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
         return subCategory;
     }
 }

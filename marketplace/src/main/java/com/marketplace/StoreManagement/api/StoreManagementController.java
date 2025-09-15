@@ -109,13 +109,15 @@ public class StoreManagementController {
     }
     
     // let's keep it to this way first with {accountId} stuff
+//    and then check the testting for this
     @PostMapping("/sellers/{account_id}/stores")
     public ResponseEntity<Object> createStore(@PathVariable("account_id") String accountId, @RequestBody @Valid StoreRequestDTO storeDto) {
+        System.out.println("store dto is: " + storeDto);
         Boolean checkIntersectionStoreName = storeService.hasStoreNameSame(storeDto.storeName());
         Role role = roleService.getOrCreateRoleAccount(Role.RoleEnum.SELLER);
-        Store createdStore = accountService.createStore(accountId, role, checkIntersectionStoreName, storeDto);
-        StoreDto parseToStoreDto = mapper.toStoreDto(createdStore);
-        return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, parseToStoreDto);
+        accountService.createStore(accountId, role, checkIntersectionStoreName, storeDto);
+//        StoreDto parseToStoreDto = mapper.toStoreDto(createdStore);
+        return ResponseHandler.generateResponse("Store created", HttpStatus.CREATED, "");
     }
 
     @PutMapping("/sellers/{account_id}/stores/store")

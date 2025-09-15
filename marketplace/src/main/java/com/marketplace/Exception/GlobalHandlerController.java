@@ -1,5 +1,6 @@
 package com.marketplace.Exception;
 
+import io.jsonwebtoken.security.SignatureException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -85,6 +87,13 @@ public class GlobalHandlerController {
         return new ResponseEntity<Object>(getErrorsMap(errors), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Object> handleRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        log.error("Request method not supported", ex.getMessage());
+        return new ResponseEntity<Object>("Request method not supported", HttpStatus.BAD_REQUEST);
+
+    }
+
     @ExceptionHandler(IOFileUploadException.class)
     public ResponseEntity<Object> handleIOFileUploadException(IOFileUploadException ex) {
         log.error("file upload exception: {}", ex.getCause());
@@ -123,6 +132,14 @@ public class GlobalHandlerController {
 
     }
 
+//    handle unmatch in refresh token
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<Object> handleSignatureException(SignatureException ex) {
+        log.error("Unmatch refresh token: ", ex.getMessage());
+        log.error("cause", ex.getCause());
+        return new ResponseEntity<>("Unmatch refresh token", HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(TransactionException.class)
     public ResponseEntity<Object> handleTransactionException(TransactionException ex) {
         log.error("Error occur in transaction : {}", ex.getMessage());
@@ -152,7 +169,8 @@ public class GlobalHandlerController {
         Map<String, Object> errorBody = new HashMap<String, Object>();
         errorBody.put("message", ex.getMessage());
         errorBody.put("cause", ex.getCause() != null ? ex.getCause().getMessage() : "please make the good argument");
-        return new ResponseEntity<>(errorBody, HttpStatus.CONFLICT);
+        System.out.println("errorBody = " + errorBody);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

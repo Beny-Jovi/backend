@@ -93,7 +93,7 @@ public class StoreManagementControllerTest {
                 .build();
         StoreRequestDTO storeDto = new StoreRequestDTO(storeName);
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
 
         Role createdRole = new Role(Role.RoleEnum.SELLER);
 
@@ -165,7 +165,7 @@ public class StoreManagementControllerTest {
                 .build();
         StoreRequestDTO storeDto = new StoreRequestDTO(null);
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
 
         Role createdRole = new Role(Role.RoleEnum.SELLER);
 
@@ -207,7 +207,7 @@ public class StoreManagementControllerTest {
                 .build();
         StoreRequestDTO storeDto = new StoreRequestDTO("fs");
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
 
         Role createdRole = new Role(Role.RoleEnum.SELLER);
 
@@ -237,7 +237,7 @@ public class StoreManagementControllerTest {
 
     @RepeatedTest(3)
     @Order(5)
-    public void createStoreTest_whenStoreRequestNotOverRange_thenThrowErrorMessageWithCharacter() throws Exception {
+    public void createStoreTest_whenStoreRequestOverExceedRange_thenThrowErrorMessageWithCharacter() throws Exception {
         String accountId = "account_id";
 
         String storeId = "store_id";
@@ -247,9 +247,9 @@ public class StoreManagementControllerTest {
                 .id(storeId)
                 .name(storeName)
                 .build();
-        StoreRequestDTO storeDto = new StoreRequestDTO("testssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
+        StoreRequestDTO storeDto = new StoreRequestDTO("testssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss testssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss testssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss");
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
 
         Role createdRole = new Role(Role.RoleEnum.SELLER);
 
@@ -286,7 +286,7 @@ public class StoreManagementControllerTest {
 
         given(accountService.getAccountById(accountId)).willReturn(Optional.of(account));
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
         Store createdStore = Store.builder()
                 .id(storeId)
                 .name(storeName)
@@ -336,7 +336,7 @@ public class StoreManagementControllerTest {
 //                .accountRoles()
         store1.setAccount(account1);
 
-        StoreDto result = new StoreDto(storeName);
+        StoreDto result = new StoreDto(storeId, storeName);
         Store createdStore = Store.builder()
                 .id(storeId)
                 .name(storeName)
@@ -375,7 +375,7 @@ public class StoreManagementControllerTest {
         String storeName = "store_name_test";
 
         StoreRequestDTO storeDto = new StoreRequestDTO(storeName);
-        StoreDto result = new StoreDto(storeName);
+        StoreDto result = new StoreDto(storeId, storeName);
         Role createdRole = new Role(Role.RoleEnum.SELLER);
         Set<Role> roles1 = new HashSet<>();
         roles1.add(createdRole);
@@ -457,7 +457,7 @@ public class StoreManagementControllerTest {
 //                .accountRoles()
         store1.setAccount(account1);
 
-        StoreDto result = new StoreDto(storeName);
+        StoreDto result = new StoreDto(storeId, storeName);
         Store createdStore = Store.builder()
                 .id(storeId)
                 .name(storeName)
@@ -549,7 +549,7 @@ public class StoreManagementControllerTest {
 
 
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
         Store createdStore = Store.builder()
                 .id(storeId)
                 .name(storeName)
@@ -578,7 +578,7 @@ public class StoreManagementControllerTest {
 
         given(accountService.getAccountById(accountId)).willReturn(Optional.of(account));
 
-        StoreDto expected = new StoreDto(storeName);
+        StoreDto expected = new StoreDto(storeId, storeName);
         Store createdStore = Store.builder()
                 .id(storeId)
                 .name(storeName)

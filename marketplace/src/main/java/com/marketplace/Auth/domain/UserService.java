@@ -41,31 +41,35 @@ public class UserService {
     }
 
     @Transactional
-    public void createUserAccount(Role role, UserMapper mapper, UserAccountCreationDTO accountDTO) {
+    public User createUserAccount(Role role, UserMapper mapper, UserAccountCreationDTO accountDTO) {
         Transaction tx = null;
-
+        User user = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            User createdAccount = mapper.toUserAccount(accountDTO);
-            createdAccount.addRole(role);
+            user = mapper.toUserAccount(accountDTO);
+            user.addRole(role);
 
             Set<User> users = new HashSet<>();
-            users.add(createdAccount);
+            users.add(user);
             role.setUsers(users);
-
+            System.out.println("user = " + user);
             tx = session.beginTransaction();
-            session.save(createdAccount);
+            session.save(user);
             tx.commit();
+            return user;
         } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();
             }
             e.printStackTrace();
         }
+        return user;
     }
 
     public User getUserByEmail(String email) {
         User user;
+        System.out.println("get user by email executed");
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            System.out.println("get user by email session executed");
             TypedQuery<User> query = session.createQuery("From User U LEFT JOIN FETCH U.accountRoles WHERE U.email =:user_email", User.class);
             query.setParameter("user_email", email);
             user = query.getSingleResult();

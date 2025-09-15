@@ -25,8 +25,8 @@ public class ProductManagementController {
     public ResponseEntity<Object> createProduct(@PathVariable("store_id") String storeId, @RequestBody ProductReqDto productDto) {
         Store store = storeService.getStore(storeId)
                 .orElseThrow(() -> new ResourceNotFoundException("The store with this id is not found"));
-        Category category = categoryService.getOrCreateCategoryByName();
-        SubCategory subCategory = subCategoryService.getOrCreateSubCategory(category);
+        Category category = categoryService.getCategoryByName(productDto.categoryName());
+        SubCategory subCategory = subCategoryService.getSubCategory(category);
         System.out.println("subCategory in controller is = " + subCategory);
         Product convertToProduct = mapper.toProduct(category, subCategory, store, productDto);
         Product product = productService.createProduct(convertToProduct);

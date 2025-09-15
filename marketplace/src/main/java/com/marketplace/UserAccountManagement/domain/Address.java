@@ -1,5 +1,6 @@
 package com.marketplace.UserAccountManagement.domain;
 
+import com.marketplace.Util.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -8,7 +9,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "`Addresses`")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 @Builder
-public class Address {
+public class Address extends Auditable {
     @Id
     @GeneratedValue(generator = "custom-generator")
     @GenericGenerator(
@@ -24,10 +25,10 @@ public class Address {
     private String recipientNumber;
 
     public enum AddressLabelEnum {
-        HOME,
+        RUMAH,
         APARTEMENT,
-        OFFICE,
-        SHARED_HOUSE
+        KANTOR,
+        KOSAN
     }
 
     @Column(name = "address_label", length = 100, nullable = false)
@@ -47,7 +48,7 @@ public class Address {
     private Boolean isDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false,referencedColumnName = "id")
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
     private User user;
 
 }

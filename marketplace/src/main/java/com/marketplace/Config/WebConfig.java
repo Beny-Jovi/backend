@@ -18,9 +18,10 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry
                         .addMapping("/**")
-                        .allowedOrigins("http://localhost:5173")
-                        .allowedHeaders(HttpHeaders.CONTENT_TYPE, "X-XSRF-TOKEN", "X-CSRF-TOKEN", HttpHeaders.AUTHORIZATION)
-                        .allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name())
+                        .allowedOrigins("http://localhost:4200")
+                        .allowedHeaders(HttpHeaders.CONTENT_TYPE, HttpHeaders.AUTHORIZATION)
+//                        .allowedHeaders("*")
+                        .allowedMethods(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name())
                         .allowCredentials(true);
             }
         };

@@ -18,7 +18,7 @@ public class StoreMapper {
     }
 
     public StoreDto toStoreDto(Store store) {
-        return new StoreDto(store.getName());
+        return new StoreDto(store.getId(), store.getName());
     }
 
 }
