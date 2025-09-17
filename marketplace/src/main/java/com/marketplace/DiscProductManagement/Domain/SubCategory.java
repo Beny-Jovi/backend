@@ -25,8 +25,7 @@ public class SubCategory {
     }
 
     @Column(name = "name", length = 80, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private SubCategoryEnum name;
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -44,8 +43,8 @@ public class SubCategory {
         products.add(product);
     }
 
-    public SubCategory(SubCategoryEnum subCategoryEnum, Category category) {
-        setName(subCategoryEnum);
+    public SubCategory(String name, Category category) {
+        setName(name);
         setCategory(category);
     }
 }

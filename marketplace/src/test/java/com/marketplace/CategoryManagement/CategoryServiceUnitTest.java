@@ -31,7 +31,7 @@ public class CategoryServiceUnitTest {
     @RepeatedTest(3)
     public void saveCategory_andReturnCategory() {
         CategoryRequestDto categoryRequestDto = new CategoryRequestDto(name);
-//        Category category1 = categoryService.createCategory(categoryRequestDto);
-//        assertThat(category1.getName()).isEqualTo(name);
+        Category category1 = categoryService.createCategory(categoryRequestDto);
+        assertThat(category1.getName()).isEqualTo(name);
     }
 }

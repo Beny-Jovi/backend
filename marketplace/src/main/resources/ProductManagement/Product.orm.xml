@@ -34,12 +34,7 @@
         </set>
 
         <many-to-one name="category" column="category_id" entity-name="Product_Category" not-null="true" />
-        <property name="name" column="name" not-null="true">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">com.marketplace.DiscProductManagement.Domain.SubCategory$SubCategoryEnum</param>
-                <param name="useNamed">true</param>
-            </type>
-        </property>
+        <property name="name" column="name" not-null="true" />
     </class>
 
     <class name = "com.marketplace.DiscProductManagement.Domain.Store" table = "`Stores`">

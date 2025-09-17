@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @Slf4j
+@Cacheable(true)
 public class User implements UserDetails {
 
     @SuppressWarnings("deprecation")
@@ -54,7 +55,7 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "`Account_Roles`",
-            joinColumns = @JoinColumn(name = "account_id"),
+            joinColumns = @JoinColumn(name = "Account_id"),
             inverseJoinColumns = @JoinColumn(name="role_id")
     )
     private Set<Role> accountRoles;

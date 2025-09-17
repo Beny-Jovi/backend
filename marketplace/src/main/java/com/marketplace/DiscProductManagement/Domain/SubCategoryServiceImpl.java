@@ -16,13 +16,13 @@ import java.util.List;
 public class SubCategoryServiceImpl implements SubCategoryService{
     @Override
     @Transactional
-    public SubCategory getSubCategory(Category category) {
+    public SubCategory getSubCategory(String subCategoryName, Category category) {
         Transaction tx = null;
         SubCategory subCategory = null;
 
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             TypedQuery<SubCategory> query = session.createQuery("FROM SubCategory SC WHERE SC.name = :sub_category_name", SubCategory.class);
-            query.setParameter("sub_category_name", SubCategory.SubCategoryEnum.DISC);
+            query.setParameter("sub_category_name", subCategoryName);
             List<SubCategory> subCategories = query.getResultList();
             if (subCategories.isEmpty()) {
                     throw new IllegalArgumentException("this category hasn't created yet");
@@ -35,13 +35,13 @@ public class SubCategoryServiceImpl implements SubCategoryService{
         return subCategory;
     }
 
-    public SubCategory createSubCategoryTest(Category category) {
+    public SubCategory createSubCategoryTest(String categoryName, Category category) {
         Transaction tx = null;
         SubCategory subCategory = null;
 
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            subCategory = new SubCategory(SubCategory.SubCategoryEnum.DISC, category);
+            subCategory = new SubCategory(categoryName, category);
             session.persist(subCategory);
             tx.commit();
             return subCategory;

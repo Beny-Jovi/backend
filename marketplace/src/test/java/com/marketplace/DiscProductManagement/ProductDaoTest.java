@@ -118,11 +118,12 @@ public class ProductDaoTest {
         String categoryName = "test_category";
 
         Category savedCategory = categoryService.saveCategoryTest(categoryName);
-        SubCategory savedSubCategory = subCategoryService.createSubCategoryTest(savedCategory);
+        SubCategory savedSubCategory = subCategoryService.createSubCategoryTest(categoryName, savedCategory);
 
         ProductReqDto productDto = new ProductReqDto(
                 categoryName,
-                SubCategory.SubCategoryEnum.DISC,
+//                SubCategory.SubCategoryEnum.DISC,
+                savedSubCategory.getName(),
                 1,
                 "Test Disc",
                 Disc.ProductConditionEnum.NEW,

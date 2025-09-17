@@ -2,27 +2,17 @@ package com.marketplace.CategoryManagement.domain;
 
 import com.marketplace.CategoryManagement.api.CategoryDto;
 import com.marketplace.CategoryManagement.api.CategoryRequestDto;
-import com.marketplace.Util.HibernateUtil;
 import jakarta.persistence.*;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
-
-
 
 @Slf4j
 @Service("CategoryService_CategoryManagement")
 public class CategoryServiceImpl implements CategoryService{
 
     private EntityManagerFactory entityManagerFactory;
-
-
 
     public Category createCategory(CategoryRequestDto categoryDto) {
         entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
@@ -31,6 +21,7 @@ public class CategoryServiceImpl implements CategoryService{
 
         boolean checkIsThatTheSameCategory = getCategories().stream()
                 .anyMatch(categoryDto1 -> categoryDto.categoryName().equals(categoryDto1.categoryName()));
+        System.out.println("checkIsThatTheSameCategory = " + checkIsThatTheSameCategory);
         if (checkIsThatTheSameCategory) {
             throw new IllegalArgumentException("You have already send the same category in to db");
         }
@@ -47,26 +38,20 @@ public class CategoryServiceImpl implements CategoryService{
         transaction.commit();
         entityManager.close();
         return category;
-        ////        categoryValidator(categoryRequestDtos);
-        ////
-        ////        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-        ////            System.out.println("try executed");
-        ////
-        ////            List<Category> categories = categoryRequestDtos.stream().map(s -> {
-        ////                if (s.categoryName().isBlank()) {
-        ////                    throw new IllegalArgumentException("The category can't be empty");
-        ////                }
-        ////                return new Category(s.categoryName());
-        ////
-        ////            }).toList();
-        ////            System.out.println("categories = " + categories);
-        ////            tx = session.beginTransaction();
-        ////            session.save(categories);
     }
 
     @Override
     public List<CategoryDto> getCategories() {
-        return List.of();
+        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<CategoryDto> query = entityManager.createQuery("SELECT new com.marketplace.CategoryManagement.api.CategoryDto(" +
+                    "c.id, c.name) From Category_Management c", CategoryDto.class);
+            return query.getResultList();
+        } finally {
+            entityManager.close();
+        }
+//        return List.of();
     }
 }
 //public class CategoryServiceImpl implements CategoryService {

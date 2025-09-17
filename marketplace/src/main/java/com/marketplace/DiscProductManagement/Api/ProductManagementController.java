@@ -26,7 +26,7 @@ public class ProductManagementController {
         Store store = storeService.getStore(storeId)
                 .orElseThrow(() -> new ResourceNotFoundException("The store with this id is not found"));
         Category category = categoryService.getCategoryByName(productDto.categoryName());
-        SubCategory subCategory = subCategoryService.getSubCategory(category);
+        SubCategory subCategory = subCategoryService.getSubCategory(productDto.subCategoryName(), category);
         System.out.println("subCategory in controller is = " + subCategory);
         Product convertToProduct = mapper.toProduct(category, subCategory, store, productDto);
         Product product = productService.createProduct(convertToProduct);

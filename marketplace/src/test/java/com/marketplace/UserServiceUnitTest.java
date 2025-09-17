@@ -1,4 +1,4 @@
-package com.marketplace.Auth;
+package com.marketplace;
 
 import com.marketplace.Auth.api.UserAccountCreationDTO;
 import com.marketplace.Auth.api.UserMapper;
@@ -15,13 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class AuthUnitTest {
+public class UserServiceUnitTest {
 
     @InjectMocks
     private UserService userService;
@@ -29,34 +30,32 @@ public class AuthUnitTest {
     @Autowired
     private UserMapper userMapper;
     private User user;
-    private Role role;
-
     private String email;
     private String name;
     private String password;
     private String repeatPassword;
+    private Role role;
 
     @BeforeEach
     protected void setup() {
-
         email = "email_test";
         name = "name_test";
         password = "password_test";
         repeatPassword = "password_test";
-
-        Set<Role> roles = new HashSet<>();
         role = new Role(Role.RoleEnum.BUYER);
+        Set<Role> roles = new HashSet<>();
         roles.add(role);
         user = new User(email, name, password, roles);
-
     }
 
     @RepeatedTest(3)
-    public void saveUser_andReturnUser() {
-        UserAccountCreationDTO userAuthDto = new UserAccountCreationDTO(email, name, password, repeatPassword);
-        User user1 = userService.createUserAccount(role, userMapper, userAuthDto);
+    public void createUserServiceTest_returnUser() {
+        UserAccountCreationDTO userDto = new UserAccountCreationDTO(email, name, password, repeatPassword);
+        User savedUser = userService.createUserAccount(role, userMapper, userDto);
+        assertThat(savedUser.getEmail()).isEqualTo(email);
+        assertThat(savedUser.getName()).isEqualTo(name);
+        assertThat(savedUser.getAccountRoles()).isNotNull();
+        assertThat(savedUser.getPassword()).isNotNull();
 
-        assertThat(user1.getName()).isEqualTo(name);
-        assertThat(user1.getEmail()).isEqualTo(email);
     }
 }

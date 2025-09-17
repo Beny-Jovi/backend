@@ -1,5 +1,5 @@
 package com.marketplace.DiscProductManagement.Domain;
 
 public interface SubCategoryService {
-    SubCategory getSubCategory(Category category);
+    SubCategory getSubCategory(String categoryName, Category category);
 }

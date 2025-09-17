@@ -84,13 +84,10 @@ public class AuthController {
 
 //        Cookie refreshTokenCookie = new Cookie("refresh_token", authenticatedUser.refreshToken());
 //        refreshTokenCookie.setMaxAge(360000);
-////        refreshTokenCookie.setHttpOnly(true);
 //        refreshTokenCookie.setSecure(true);
 //        refreshTokenCookie.setPath("/");
 //        response.addCookie(refreshTokenCookie);
 
-//        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-//        response.setHeader("X-CSRF-TOKEN", csrfToken.getToken());
         return ResponseHandler.generateResponse("Login Successfully", HttpStatus.CREATED, "");
     }
 
