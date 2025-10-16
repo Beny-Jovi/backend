@@ -9,12 +9,9 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,16 +30,20 @@ public class ProductDaoTest {
     @InjectMocks
     private ProductMapper mapper;
 
+    private Category category;
+    private String categoryName;
     private Product product;
 
     @BeforeEach
     public void setup() {
         String id = "product_id";
-
+        categoryName = "category_name_test22";
         product = Product.builder()
                 .orderMinimum(1)
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        category = new Category(categoryName);
     }
 
 //    @RepeatedTest(3)
@@ -101,19 +102,28 @@ public class ProductDaoTest {
 ////        assertThat(savedProduct.getOrderMinimum()).isGreaterThanOrEqualTo(1);
 //
 //    }
+    @RepeatedTest(3)
+    public void saveCategory_andReturnCategory() {
+        Category savedCategory = categoryService.saveCategoryTest(categoryName);
+        assertThat(savedCategory.getName()).isEqualTo(categoryName);
+
+    }
+
 
     @RepeatedTest(3)
     @Order(1)
     public void testSaveProductWithAssociations() {
         String storeName = "Test Store";
         Store savedStore = storeService.saveStoreTest(storeName);
+        String categoryName = "test_category";
+        String subCategoryName = "sub_category_test";
 
-        Category savedCategory = categoryService.getOrCreateCategoryByName();
-        SubCategory savedSubCategory = subCategoryService.getOrCreateSubCategory(savedCategory);
+        Category savedCategory = categoryService.saveCategoryTest(categoryName);
+        SubCategory savedSubCategory = subCategoryService.createSubCategoryTest(savedCategory, subCategoryName);
 
         ProductReqDto productDto = new ProductReqDto(
-                Category.CategoryEnum.DIGITAL_WORK,
-                SubCategory.SubCategoryEnum.DISC,
+                categoryName,
+                subCategoryName,
                 1,
                 "Test Disc",
                 Disc.ProductConditionEnum.NEW,
@@ -129,17 +139,17 @@ public class ProductDaoTest {
 
         assertThat(savedProduct.getStore().getName()).isEqualTo(storeName);
         // Optional: Additional assertions for robustness
-        assertThat(savedProduct.getSubCategory().getName()).isEqualTo(SubCategory.SubCategoryEnum.DISC);
+        assertThat(savedProduct.getSubCategory().getSubCategoryName()).isEqualTo(subCategoryName);
 
 //        verify the sub category
-        assertThat(savedSubCategory.getCategory().getName()).isEqualTo(Category.CategoryEnum.DIGITAL_WORK);
-        assertThat(savedSubCategory.getName()).isEqualTo(SubCategory.SubCategoryEnum.DISC);
+        assertThat(savedSubCategory.getCategory().getName()).isEqualTo(categoryName);
+        assertThat(savedSubCategory.getSubCategoryName()).isEqualTo(subCategoryName);
         assertThat(savedSubCategory.getProducts()).isNotNull();
 
     //        verify the product
         assertThat(savedProduct).isNotNull();
         assertThat(savedProduct.getStore().getName()).isEqualTo(storeName);
-        assertThat(savedProduct.getSubCategory().getName()).isEqualTo(SubCategory.SubCategoryEnum.DISC);
+        assertThat(savedProduct.getSubCategory().getSubCategoryName()).isEqualTo(subCategoryName);
         assertThat(savedProduct.getOrderMinimum()).isGreaterThanOrEqualTo(1);
     }
 

@@ -4,7 +4,7 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name = "com.marketplace.Auth.domain.User" table = "`Users`">
+    <class name = "com.marketplace.Auth.domain.User" table = "`Users`" entity-name="User_Auth">
 
         <meta attribute = "class-description">
             This class contains the employee detail.
@@ -54,7 +54,7 @@
 
         <set name = "users" inverse="true" table="`Account_Roles`" lazy="true">
             <key column = "role_id"/>
-            <many-to-many column = "account_id" class="com.marketplace.Auth.domain.User"/>
+            <many-to-many column = "account_id" class="com.marketplace.Auth.domain.User" entity-name="User_Auth"/>
         </set>
 
 <!--        <set name="users" table="`Account_Roles`" inverse="true">-->

@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @RequestMapping("/user")
 @RestController
@@ -70,31 +72,26 @@ public class AuthController {
             return ResponseEntity.ok("You are already logged in");
         }
         TokenDto authenticatedUser = authService.authenticateUser(userLoginDto);
-//        String jwtToken = jwtService.generateToken(authenticatedUser);
 
         Cookie tokenCookie = new Cookie("token", authenticatedUser.userToken());
 
 //        Adjust cookie later in production
         tokenCookie.setMaxAge(3600);
         tokenCookie.setSecure(true);
-        tokenCookie.setHttpOnly(false);
         tokenCookie.setPath("/");
         response.addCookie(tokenCookie);
 
         Cookie refreshTokenCookie = new Cookie("refresh_token", authenticatedUser.refreshToken());
         refreshTokenCookie.setMaxAge(360000);
-        refreshTokenCookie.setHttpOnly(false);
         refreshTokenCookie.setSecure(true);
         refreshTokenCookie.setPath("/");
         response.addCookie(refreshTokenCookie);
 
-//        CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-//        response.setHeader("X-CSRF-TOKEN", csrfToken.getToken());
         return ResponseHandler.generateResponse("Login Successfully", HttpStatus.CREATED, "");
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<Object> userLogout(@CookieValue(value = "token", required = false) String token, HttpServletResponse response) {
+    public ResponseEntity<Object> userLogout(@CookieValue(value = "refresh_token", required = false) String token, HttpServletResponse response) {
         if (token == null) {
             return ResponseEntity.ok("You are not logged in");
         }
@@ -109,13 +106,29 @@ public class AuthController {
         refreshTokenCookie.setMaxAge(0);
         refreshTokenCookie.setPath("/");
         response.addCookie(refreshTokenCookie);
-        return ResponseHandler.generateResponse("Register Successfully", HttpStatus.CREATED, "");
+//        return ResponseHandler.generateResponse("", HttpStatus.NO_CONTENT, "");
+        return ResponseEntity.ok("");
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity<Object> refreshToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
-        TokenDto authenticatedUser = authService.generateRefreshToken(refreshToken);
-        return ResponseEntity.ok(authenticatedUser);
+    @GetMapping("/refresh/refresh_token")
+    public ResponseEntity<Object> refreshToken(@RequestParam("refresh_token") String refreshToken, HttpServletResponse response) {
+//        TokenDto authenticatedUser = authService.generateRefreshToken(refreshToken);
+
+//        Cookie tokenCookie = new Cookie("token", authenticatedUser.userToken());
+
+//        Adjust cookie later in production
+//        tokenCookie.setMaxAge(36000);
+//        tokenCookie.setSecure(true);
+//        tokenCookie.setPath("/");
+//        response.addCookie(tokenCookie);
+
+//        Cookie refreshTokenCookie = new Cookie("refresh_token", authenticatedUser.refreshToken());
+//        refreshTokenCookie.setMaxAge(360000);
+//        refreshTokenCookie.setSecure(true);
+//        refreshTokenCookie.setPath("/");
+//        response.addCookie(refreshTokenCookie);
+
+        return ResponseEntity.ok("");
     }
 
 //    @GetMapping("/csrf_token")
@@ -134,9 +147,9 @@ public class AuthController {
 //        return ResponseEntity.ok(csrfToken);
 //    }
 
-    @GetMapping("/csrf_token")
-    public CsrfToken getCsrfToken(HttpServletRequest request) {
-        return (CsrfToken) request.getAttribute("_csrf");
-    }
+//    @GetMapping("/csrf_token")
+//    public CsrfToken getCsrfToken(HttpServletRequest request) {
+//        return (CsrfToken) request.getAttribute("_csrf");
+//    }
 
 }

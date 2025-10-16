@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record StoreRequestDTO(
     @NotBlank(message = "Invalid store name: Empty/Null")
-    @Size(min = 3, max = 20, message = "Store name must be 3-20 characters")
+    @Size(min = 3, max = 30, message = "Store name must be 3-20 characters")
     String storeName
 
 ) {

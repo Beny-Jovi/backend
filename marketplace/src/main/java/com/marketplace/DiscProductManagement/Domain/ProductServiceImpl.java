@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
         Session session = HibernateUtil.getSessionFactory().openSession();
         try {
             tx = session.beginTransaction();
-            session.persist(product);
+            session.persist("Product_Management", product);
             tx.commit();
         } catch (Exception ex) {
             if (tx != null) {
@@ -109,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
                 tx = session.beginTransaction();
                 product.setIsDeleted(true);
                 System.out.println("product = " + product.getIsDeleted());
-                session.merge(product);
+                session.merge("Product_Management", product);
                 tx.commit();
             }
             System.out.println("product = " + product);

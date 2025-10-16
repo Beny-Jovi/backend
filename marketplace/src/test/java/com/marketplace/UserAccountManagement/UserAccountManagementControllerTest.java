@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -120,7 +119,7 @@ public class UserAccountManagementControllerTest {
 
         given(userService.saveUser(user)).willReturn(user);
         String cityAndSub = "city_test";
-        Address.AddressLabelEnum addressLabel = Address.AddressLabelEnum.HOME;
+        Address.AddressLabelEnum addressLabel = Address.AddressLabelEnum.RUMAH;
         String completeAddress = "complete_address_test";
         String recipientName = "recipient_name_test";
         String recipientNumber = "0432580238450328";

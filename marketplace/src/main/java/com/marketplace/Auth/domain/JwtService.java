@@ -37,6 +37,8 @@ public class JwtService {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .claim("roles", userDetails.getAuthorities()) // Add roles as a claim
+                .claim("userId", userDetails instanceof User ? ((User) userDetails).getId() : null)
+                .claim("username", userDetails instanceof User ? ((User) userDetails).getName() : null)
                 .issuedAt(expiryDate)
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -66,7 +68,6 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parser()
@@ -87,16 +88,13 @@ public class JwtService {
 
     // Get username from JWT token
     public String getUsernameFromToken(String token) {
-        System.out.println("token from getUsernameFromToken method = " + token);
-        String usernameFromToken = Jwts
+        return Jwts
                 .parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
-        System.out.println("usernameFromToken = " + usernameFromToken);
-        return usernameFromToken;
 //                Jwts
 //                .parser()
 //                .verifyWith(key)

@@ -32,7 +32,7 @@ public class UserService {
         boolean isThereAnyUserWithTheEmail;
         System.out.println("check user by email method start");
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            TypedQuery<Long> query = session.createQuery("SELECT COUNT(u) FROM User u WHERE u.email = :user_email", Long.class);
+            TypedQuery<Long> query = session.createQuery("SELECT COUNT(u) FROM User_Auth u WHERE u.email = :user_email", Long.class);
             query.setParameter("user_email", email);
             Long count = query.getSingleResult();
             isThereAnyUserWithTheEmail = count > 0;
@@ -41,33 +41,39 @@ public class UserService {
     }
 
     @Transactional
-    public void createUserAccount(Role role, UserMapper mapper, UserAccountCreationDTO accountDTO) {
+    public User createUserAccount(Role role, UserMapper mapper, UserAccountCreationDTO accountDTO) {
         Transaction tx = null;
-
+        User user = null;
+        System.out.println("create user account executed");
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            User createdAccount = mapper.toUserAccount(accountDTO);
-            createdAccount.addRole(role);
+            user = mapper.toUserAccount(accountDTO);
+            user.addRole(role);
 
             Set<User> users = new HashSet<>();
-            users.add(createdAccount);
+            users.add(user);
             role.setUsers(users);
-
+            System.out.println("user = " + user);
             tx = session.beginTransaction();
-            session.save(createdAccount);
+            session.save(user);
             tx.commit();
+            return user;
         } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();
             }
             e.printStackTrace();
         }
+        return user;
     }
 
     public User getUserByEmail(String email) {
-        User user;
+        User user = null;
+        System.out.println("get user by email executed");
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            TypedQuery<User> query = session.createQuery("From User U LEFT JOIN FETCH U.accountRoles WHERE U.email =:user_email", User.class);
+            System.out.println("get user by email session executed");
+            TypedQuery<User> query = session.createQuery("From User_Auth U LEFT JOIN FETCH U.accountRoles WHERE U.email =:user_email", User.class);
             query.setParameter("user_email", email);
+            System.out.println("query = " + query);
             user = query.getSingleResult();
 //            System.out.println("users.getFirst().getEmail() = " + users.getFirst().getEmail());
             if (user == null) {

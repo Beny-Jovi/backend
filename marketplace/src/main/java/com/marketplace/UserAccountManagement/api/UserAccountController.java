@@ -2,6 +2,7 @@ package com.marketplace.UserAccountManagement.api;
 
 import java.util.List;
 
+import com.marketplace.UserAccountManagement.domain.AddressService;
 import com.marketplace.UserAccountManagement.domain.User;
 import com.marketplace.UserAccountManagement.domain.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +41,13 @@ public class UserAccountController {
     private final UserService userService;
 //    private final RoleService roleService;
     private final UserMapper mapper;
+    private final AddressService addressService;
 
     @Autowired
-    public UserAccountController(UserService userService, UserMapper mapper) {
+    public UserAccountController(UserService userService, UserMapper mapper, AddressService addressService) {
         this.userService = userService;
         this.mapper = mapper;
+        this.addressService = addressService;
     }
 
     @Operation(summary = "Admin Can get User here")
@@ -170,7 +173,7 @@ public class UserAccountController {
 //        for this operation, you can make the email verification first
         User foundUser = userService.getUserById(id)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+id));
-        if (foundUser.getIsDeleted()!=null) {
+        if (foundUser.getIsDeleted()) {
             throw new IllegalArgumentException("User has already been deleted");
         }
         if (!accountDto.repeatPassword().equals(accountDto.password())) {
@@ -178,6 +181,17 @@ public class UserAccountController {
         }
         userService.updateUserPassword(foundUser, accountDto);
         return ResponseHandler.generateResponse("Password successfully changed", HttpStatus.ACCEPTED, "");
+    }
+
+    @GetMapping("/users/{user_id}/addresses/addressId")
+    public ResponseEntity<Object> getAddressById(@PathVariable("user_id") String id, @RequestParam("address_id") String addressId) {
+        User foundUser = userService.getUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+id));
+        if (foundUser.getIsDeleted() != null) {
+            throw new IllegalArgumentException("User has already been deleted");
+        }
+        UserAddressDto dto = addressService.getUserAddress(addressId);
+        return ResponseEntity.ok(dto);
     }
 
     @Operation(summary = "Address can be added in here")
@@ -199,8 +213,8 @@ public class UserAccountController {
     @PostMapping("/users/{user_id}/addresses")
     public ResponseEntity<Object> addUserAddresses(@PathVariable("user_id") String id, @RequestBody @Valid UserAddressCreationDto addressDto) {
         System.out.println("access add user address ");
-       userService.addUserAddress(id, addressDto);
-       return ResponseHandler.generateResponse("Address successfully added", HttpStatus.CREATED, "");
+        userService.addUserAddress(id, addressDto);
+        return ResponseHandler.generateResponse("Address successfully added", HttpStatus.CREATED, "");
     }
 
     @Operation(summary = "Retrieve all user address based on user id")
@@ -225,6 +239,15 @@ public class UserAccountController {
         return ResponseEntity.ok(dtos);
     }
 
+    @PutMapping("/users/{user_id}/addresses")
+    public void updateSelectedAddress(@PathVariable("user_id") String userId, @RequestBody @Valid IndexRequestUpdateDto indices) {
+        userService.updateSelectedAddress(userId, indices);
+//        return ResponseEntity.ok("Successfully changes");
+//        return ResponseHandler.generateResponse("selected address index successfully changed", HttpStatus.CREATED, "");
+
+    }
+
+
     @Operation(summary = "Address can be edited in here")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Address successfully updated",
@@ -241,10 +264,10 @@ public class UserAccountController {
                     )) }
             )
     })
-    @PutMapping("/users/{user_id}/addresses/address_id")
+    @PutMapping("/users/{user_id}/addresses/addressId")
     public ResponseEntity<Object> updateUserAddress(@PathVariable("user_id") String id, @RequestParam("address_id") String addressId, @RequestBody @Valid UserAddressCreationDto addressDto) {
         userService.updateUserAddress(id, addressId, addressDto);
-        return ResponseEntity.ok().body("Address successfully updated");
+        return ResponseHandler.generateResponse("Address Successfully updated", HttpStatus.OK, "");
     }
 
     @Operation(summary = "Delete Address in here")
@@ -259,7 +282,13 @@ public class UserAccountController {
             )
     })
     @DeleteMapping("/users/{user_id}/addresses/address_id")
-    public ResponseEntity<String> deleteAddress() {
+    public ResponseEntity<String> deleteAddress(@PathVariable("user_id") String id, @RequestParam("address_id") String addressId) {
+        User foundUser = userService.getUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id "+id));
+        if (foundUser.getIsDeleted()) {
+            throw new IllegalArgumentException("User has already been deleted");
+        }
+        addressService.deleteAddress(addressId);
         return ResponseEntity.ok("Address successfully deleted");
     }
 

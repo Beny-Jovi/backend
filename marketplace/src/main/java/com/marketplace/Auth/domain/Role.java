@@ -14,6 +14,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable
 public class Role {
 
     @SuppressWarnings("deprecation")
@@ -35,7 +36,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private RoleEnum roleName;
 
-    @ManyToMany(mappedBy = "accountRoles")
+    @ManyToMany(mappedBy = "accountRoles", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
     public Role(RoleEnum roleName) {

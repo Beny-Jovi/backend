@@ -4,50 +4,37 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name = "com.marketplace.DiscProductManagement.Domain.Category" table = "`Categories`">
-
-        <meta attribute = "class-description">
+    <class name="com.marketplace.DiscProductManagement.Domain.Category" table="`Categories`" entity-name="Product_Category">
+        <meta attribute="class-description">
             This class contains the employee detail.
         </meta>
 
-        <id name = "id" type = "string" column = "id">
+        <id name="id" type="string" column="id">
             <generator class="com.marketplace.Util.CustomGenerator"/>
         </id>
 
-        <set name = "subCategories" cascade="all">
-            <key column = "category_id"/>
-            <one-to-many class="com.marketplace.DiscProductManagement.Domain.SubCategory"/>
+        <set name="subCategories" cascade="all">
+            <key column="category_id"/>
+            <one-to-many entity-name="SubCategory_ProductManagement"/>
         </set>
 
-        <!--        <property name = "name" column = "name" type = "string" not-null="true"/>-->
-        <property name="name" column="name" not-null="true">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">com.marketplace.DiscProductManagement.Domain.Category$CategoryEnum</param>
-                <param name="useNamed">true</param>
-            </type>
-        </property>
-
+        <property name="name" column="name" type="string" not-null="true"/>
     </class>
-    <class name="com.marketplace.DiscProductManagement.Domain.SubCategory" table="`Sub_Categories`">
-        <meta attribute = "class-description">
+
+    <class name="com.marketplace.DiscProductManagement.Domain.SubCategory" table="`Sub_Categories`" entity-name="SubCategory_ProductManagement">
+        <meta attribute="class-description">
             This class contains the certificate records.
         </meta>
-        <id name = "id" type = "string" column = "id">
+        <id name="id" type="string" column="id">
             <generator class="com.marketplace.Util.CustomGenerator"/>
         </id>
-        <set name = "products" cascade="all">
-            <key column = "sub_category_id"/>
-            <one-to-many class="com.marketplace.DiscProductManagement.Domain.Product" />
+        <set name="products" cascade="all">
+            <key column="sub_category_id"/>
+            <one-to-many entity-name="Product_Management" />
         </set>
 
-        <many-to-one name="category" column="category_id" class="com.marketplace.DiscProductManagement.Domain.Category" not-null="true" />
-        <!--        <property name = "name" column = "name" type = "string" not-null="true"/>-->
-        <property name="name" column="name" not-null="true">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">com.marketplace.DiscProductManagement.Domain.SubCategory$SubCategoryEnum</param>
-                <param name="useNamed">true</param>
-            </type>
-        </property>
+        <many-to-one name="category" column="category_id" entity-name="Product_Category" not-null="true" />
+        <property name="subCategoryName" column="sub_category_name" length="80" not-null="true" type="string" />
     </class>
 
     <class name = "com.marketplace.DiscProductManagement.Domain.Store" table = "`Stores`">
@@ -62,7 +49,7 @@
 
         <set name = "products" cascade="all">
             <key column = "store_id"/>
-            <one-to-many class="com.marketplace.DiscProductManagement.Domain.Product"/>
+            <one-to-many entity-name="Product_Management"/>
         </set>
 
         <property name = "name" column = "name" type = "string" not-null="true"/>
@@ -71,7 +58,7 @@
 
     </class>
 
-    <class name="com.marketplace.DiscProductManagement.Domain.Product" table="`Products`">
+    <class name="com.marketplace.DiscProductManagement.Domain.Product" table="`Products`" entity-name="Product_Management">
         <meta attribute = "class-description">
             This class contains the certificate records.
         </meta>
@@ -81,7 +68,7 @@
         <property name = "orderMinimum" column = "order_minimum" type = "integer" not-null="true"/>
         <property name = "createdAt" column = "created_at" type = "LocalDateTime" not-null="true"/>
         <property name ="isDeleted" column="is_deleted" type="boolean" />
-        <many-to-one name="subCategory" column="sub_category_id" class="com.marketplace.DiscProductManagement.Domain.SubCategory" not-null="true"/>
+        <many-to-one name="subCategory" column="sub_category_id" entity-name="SubCategory_ProductManagement" not-null="true"/>
         <many-to-one name="store" column="store_id" class="com.marketplace.DiscProductManagement.Domain.Store" not-null="true" />
         <one-to-one name="productView" class="com.marketplace.DiscProductManagement.Domain.ProductView" cascade="all"  />
         <one-to-one name="Disc" class="com.marketplace.DiscProductManagement.Domain.Disc" cascade="all" />
@@ -99,7 +86,7 @@
 
         <property name = "numberOfView" column = "number_of_view" type = "int" not-null="true"/>
         <property name = "productRate" column = "product_rate" type = "int" not-null="true"/>
-        <one-to-one name="product" class="com.marketplace.DiscProductManagement.Domain.Product" constrained="true" />
+        <one-to-one name="product" entity-name="Product_Management" constrained="true" />
 
     </class>
 
@@ -128,7 +115,7 @@
             </type>
         </property>
 
-        <one-to-one name="product" class="com.marketplace.DiscProductManagement.Domain.Product" cascade="all" constrained="true" />
+        <one-to-one name="product" entity-name="Product_Management" cascade="all" constrained="true" />
         <property name = "description" column = "description" type = "string" not-null="true"/>
         <property name = "publisher" column = "publisher" type = "string" not-null="true"/>
 

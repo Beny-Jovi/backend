@@ -17,6 +17,7 @@ mvn clean package
 ## Features
 - Spring data JPA
 - Postgresql
+- Redis Client
 - Lombok
 - Sulky ULID
 - swagger

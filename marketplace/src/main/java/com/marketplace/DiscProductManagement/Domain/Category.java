@@ -7,7 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@Entity(name = "Product_Category")
 @Table(name = "`Categories`")
 @Getter
 @Setter
@@ -22,23 +22,13 @@ public class Category {
     )
     private String id;
 
-    public enum CategoryEnum {
-        DIGITAL_WORK
-    }
-
     @Column(name = "name", length = 80, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private CategoryEnum name;
+    private String name;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SubCategory> subCategories = new HashSet<SubCategory>();
 
-    public void addSubCategory(SubCategory subCategory) {
-        System.out.println("this.getSubCategories() = " + this.getSubCategories());
-        subCategories.add(subCategory);
-    }
-
-    public Category(CategoryEnum name) {
+    public Category(String name) {
         this.setName(name);
     }
 }

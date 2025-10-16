@@ -3,11 +3,13 @@ package com.marketplace.Config;
 import com.marketplace.Auth.domain.AuthEntryPoint;
 import com.marketplace.Auth.domain.AuthTokenFilter;
 import com.marketplace.Auth.domain.Role;
+import lombok.AllArgsConstructor;
 import org.apache.catalina.filters.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,9 +23,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.*;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -35,8 +37,6 @@ import java.util.List;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private AuthEntryPoint authEntryPoint;
-
     @Autowired
     private AuthEntryPoint unauthorizedHandler;
 
@@ -45,8 +45,13 @@ public class WebSecurityConfig {
         return new AuthTokenFilter();
     }
 
+//    @Bean
+//    public RateLimiterFilter rateLimiterFilter() {
+//        return new RateLimiterFilter();
+//    }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
@@ -54,6 +59,73 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+        // Updated configuration for Spring Security 6.x
+        http
+                .headers(headers ->
+                        headers.xssProtection(
+                                xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
+                        ).contentSecurityPolicy(
+                                cps -> cps.policyDirectives("script-src 'self'")
+                        )
+                )
+                .cors(Customizer.withDefaults())
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(unauthorizedHandler)
+                )
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests(authorizeRequests ->
+                                authorizeRequests
+                                        .requestMatchers("/user/**",
+//                                        "/user/register", "/user/refresh", "/user/logout",
+                                                "/api/test/all"
+
+                                                //                                , "/swagger-ui/**" , "/swagger-ui.html" //disable this endpoint if in production
+                                                //                                , "/api/users/**", "/api/user/**", "/api/stores/**", "/api/sellers/**", "/api/store/**", "/api/seller/**"
+                                                , "/swagger-ui.html", "/v2/api-docs", "/swagger-resources/**", "/configuration/ui", "/configuration/security", "/webjars/**" // for swagger stuff
+                                        ).permitAll()
+                                        .requestMatchers("/api/users/**", "/api/user/**").hasAnyAuthority(Role.RoleEnum.BUYER.name(), Role.RoleEnum.SELLER.name())
+                                        .requestMatchers(HttpMethod.POST, "api/sellers/{account_id}/stores").hasAnyAuthority(Role.RoleEnum.BUYER.name(), Role.RoleEnum.ADMIN.name())
+                                        .requestMatchers("/api/stores/**", "/api/sellers/**", "/api/store/**", "/api/seller/**").hasAnyAuthority(Role.RoleEnum.SELLER.name())
+                                        .requestMatchers("/admin/**").hasAnyAuthority(Role.RoleEnum.ADMIN.name())
+                                        .anyRequest().authenticated()
+                );
+        // Add the JWT Token filter before the UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+//        http.addFilterAfter(rateLimiterFilter(), AuthTokenFilter.class);
+        return http.build();
+    }
+}
+
+
+
+
+
+
+
+
+//                .csrf(csrf -> csrf
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+////                        .ignoringRequestMatchers("/user/register", "/user/refresh", "/user/logout", "/user/login")
+//
+//                )
+//                .csrf(csrf -> csrf.disable())
+//                .exceptionHandling(customizer -> customizer.authenticationEntryPoint(authEntryPoint))
+//                .csrf(Customizer.withDefaults())
+//                .csrf((csrf) -> csrf
+//                        .csrfTokenRequestHandler(new XorCsrfTokenRequestAttributeHandler())
+//                )
+//                .csrf(csrf -> csrf
+//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+//                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Disable CORS (or configure if needed)
+
+//    }
 
 //    @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -73,95 +145,3 @@ public class WebSecurityConfig {
 //        return http.build();
 //    }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Updated configuration for Spring Security 6.x
-        http
-//                .csrf(csrf -> csrf
-//                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-////                        .ignoringRequestMatchers("/user/register", "/user/refresh", "/user/logout", "/user/login")
-//
-//                )
-//                .csrf(csrf -> csrf.disable())
-                .csrf(Customizer.withDefaults())
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Disable CORS (or configure if needed)
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(unauthorizedHandler)
-                )
-                .sessionManagement(sessionManagement ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/user/**",
-//                                        "/user/register", "/user/refresh", "/user/logout",
-                                        "/api/test/all",
-                                "/user/csrf_token"
-//                                , "/swagger-ui/**" , "/swagger-ui.html" //disable this endpoint if in production
-//                                , "/api/users/**", "/api/user/**", "/api/stores/**", "/api/sellers/**", "/api/store/**", "/api/seller/**"
-//                                , "/swagger-ui.html", "/v2/api-docs", "/swagger-resources/**", "/configuration/ui", "/configuration/security", "/webjars/**" // for swagger stuff
-                                ).permitAll()
-                                .requestMatchers("/api/users/**", "/api/user/**").hasAnyAuthority(Role.RoleEnum.BUYER.name())
-                                .requestMatchers("/api/stores/**", "/api/sellers/**", "/api/store/**", "/api/seller/**").hasAnyAuthority(Role.RoleEnum.SELLER.name())
-                                .anyRequest().authenticated()
-                );
-        // Add the JWT Token filter before the UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-
-    }
-
-
-
-
-//    private CsrfTokenRepository csrfTokenRepository() {
-//        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-//        repository.setSessionAttributeName("_csrf");
-//        return repository;
-//    }
-
-//    private CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-//        configuration.setAllowedMethods(List.of(
-//                HttpMethod.GET.name(),
-//                HttpMethod.POST.name(),
-//                HttpMethod.PUT.name(),
-//                HttpMethod.DELETE.name(),
-//                HttpMethod.OPTIONS.name()));
-//        configuration.setAllowedHeaders(List.of(
-//                HttpHeaders.AUTHORIZATION,
-//                HttpHeaders.CONTENT_TYPE,
-//                HttpHeaders.ACCEPT)
-//        );
-//        configuration.setAllowCredentials(true); // Allow credentials
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-
-//    @Bean
-//    public FilterRegistrationBean corsFilter() {
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowCredentials(true);
-//        config.addAllowedOrigin("http://localhost:5173");
-//        config.setAllowedHeaders(Arrays.asList(
-//                HttpHeaders.AUTHORIZATION,
-//                HttpHeaders.CONTENT_TYPE,
-//                HttpHeaders.ACCEPT
-//        ));
-//        config.setAllowedMethods(Arrays.asList(
-//                HttpMethod.GET.name(),
-//                HttpMethod.POST.name(),
-//                HttpMethod.PUT.name(),
-//                HttpMethod.DELETE.name(),
-//                HttpMethod.OPTIONS.name()
-//        ));
-//        config.setMaxAge(MAX_AGE);
-//        source.registerCorsConfiguration("**", config);
-//        FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter());
-//        return bean;
-//    }
-
-}

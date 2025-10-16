@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -22,6 +24,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.class)
+//@TestPropertySource(locations = "classpath:test/resources/application.properties")
+@ActiveProfiles("test")
 public class AccountServiceUnitTest {
 
     @InjectMocks

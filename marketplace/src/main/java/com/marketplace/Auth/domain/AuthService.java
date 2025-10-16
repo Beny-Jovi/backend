@@ -28,6 +28,7 @@ public class AuthService {
                         userLoginDto.password()
                 )
         );
+        System.out.println("authenticate user executed");
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.refreshToken(userDetails);

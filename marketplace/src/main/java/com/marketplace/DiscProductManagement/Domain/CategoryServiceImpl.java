@@ -9,37 +9,44 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service("CategoryProductManagement")
 @Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
-    public Category getOrCreateCategoryByName() {
+    public Category getCategoryByName(String name) {
 
         Transaction tx = null;
         Category category = null;
 
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             TypedQuery<Category> query = session.createQuery("FROM Category C WHERE C.name = :category_name", Category.class);
-            query.setParameter("category_name", Category.CategoryEnum.DIGITAL_WORK);
+            query.setParameter("category_name", name);
             List<Category> categories = query.getResultList();
             if (categories.isEmpty()) {
-                System.out.println("Categories is empty");
-                tx = session.beginTransaction();
-                category = new Category(Category.CategoryEnum.DIGITAL_WORK);
-                session.persist(category);
-                tx.commit();
-
-                return category;
+                throw new IllegalArgumentException("this category hasn't created yet");
             }
             category = categories.getFirst();
-        } catch (Exception ex) {
-            if(tx != null) {
-                tx.rollback();
-            }
-            log.error("Something went wrong:{} ", ex.getMessage());
-            ex.printStackTrace();
         }
 //        System.out.println("category after operation = " + category);
+        return category;
+    }
+
+    public Category saveCategoryTest(String categoryName) {
+        Transaction tx = null;
+        Category category = null;
+
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            category = new Category(categoryName);
+            session.persist(category);
+            tx.commit();
+        } catch (Exception ex) {
+            log.error("transaction error");
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
         return category;
     }
 
