@@ -1,0 +1,16 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.marketplace.CategoryManagement.domain.Category" table="`Categories`" entity-name="Category_Category_Management">
+        <id name="id" type="string" column="id">
+            <generator class="com.marketplace.Util.CustomGenerator" />
+        </id>
+
+        <property name="name" column="name" not-null="true" type="string" />
+        <property name="createdAt" column="created_at" not-null="true"  type="LocalDateTime" />
+        <property name="isDeleted" column="is_deleted" type="boolean" />
+    </class>
+</hibernate-mapping>

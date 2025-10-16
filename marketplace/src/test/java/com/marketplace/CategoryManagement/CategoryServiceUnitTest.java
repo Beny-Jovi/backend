@@ -1,19 +1,25 @@
 package com.marketplace.CategoryManagement;
 
+import com.marketplace.Auth.domain.JwtService;
 import com.marketplace.CategoryManagement.api.CategoryRequestDto;
 import com.marketplace.CategoryManagement.domain.Category;
 import com.marketplace.CategoryManagement.domain.CategoryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 public class CategoryServiceUnitTest {
 
     @InjectMocks
@@ -21,6 +27,9 @@ public class CategoryServiceUnitTest {
 
     private Category category;
     private String name;
+
+    @Autowired
+    private JwtService jwtService;
 
     @BeforeEach
     protected void setup() {
@@ -31,7 +40,11 @@ public class CategoryServiceUnitTest {
     @RepeatedTest(3)
     public void saveCategory_andReturnCategory() {
         CategoryRequestDto categoryRequestDto = new CategoryRequestDto(name);
-        Category category1 = categoryService.createCategory(categoryRequestDto);
-        assertThat(category1.getName()).isEqualTo(name);
+        Category category1 = new Category(categoryRequestDto.categoryName());
+        Category savedCategory = categoryService.saveCategoryTest(category1);
+        assertThat(savedCategory.getName()).isEqualTo(name);
+        assertThat(savedCategory.getId()).isNotNull();
+        //        Category category1 = categoryService.createCategory(categoryRequestDto);
+//        assertThat(category1.getName()).isEqualTo(name);
     }
 }

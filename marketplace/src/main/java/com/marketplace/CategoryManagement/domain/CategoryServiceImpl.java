@@ -2,224 +2,163 @@ package com.marketplace.CategoryManagement.domain;
 
 import com.marketplace.CategoryManagement.api.CategoryDto;
 import com.marketplace.CategoryManagement.api.CategoryRequestDto;
-import jakarta.persistence.*;
+import com.marketplace.Util.HibernateUtil;
+import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Service("CategoryService_CategoryManagement")
-public class CategoryServiceImpl implements CategoryService{
+@Service
+public class CategoryServiceImpl implements CategoryService {
 
-    private EntityManagerFactory entityManagerFactory;
-
-    public Category createCategory(CategoryRequestDto categoryDto) {
-        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-
-        boolean checkIsThatTheSameCategory = getCategories().stream()
-                .anyMatch(categoryDto1 -> categoryDto.categoryName().equals(categoryDto1.categoryName()));
-        System.out.println("checkIsThatTheSameCategory = " + checkIsThatTheSameCategory);
-        if (checkIsThatTheSameCategory) {
-            throw new IllegalArgumentException("You have already send the same category in to db");
+    @Transactional
+    public Category saveCategoryTest(Category category) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            session.persist(category);
+            tx.commit();
+        }catch (Exception ex) {
+            log.error("transaction error");
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
         }
-
-//        List<Category> categories = categoryRequestDtos.stream().map(s -> {
-//            if (s.categoryName().isBlank()) {
-//                throw new IllegalArgumentException("The category can't be empty");
-//            }
-//            return new Category(s.categoryName());
-        Category category = new Category(categoryDto.categoryName());
-        transaction.begin();
-
-        entityManager.persist(category);
-        transaction.commit();
-        entityManager.close();
         return category;
     }
 
-    @Override
     public List<CategoryDto> getCategories() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            TypedQuery<CategoryDto> query = entityManager.createQuery("SELECT new com.marketplace.CategoryManagement.api.CategoryDto(" +
-                    "c.id, c.name) From Category_Management c", CategoryDto.class);
-            return query.getResultList();
-        } finally {
-            entityManager.close();
+        List<CategoryDto> categoriesDto;
+
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            TypedQuery<CategoryDto> categoryQuery = session.createQuery("SELECT new com.marketplace.CategoryManagement.api.CategoryDto(" +
+                    "c.id, c.name) From Category_Category_Management c", CategoryDto.class);
+            categoriesDto = categoryQuery.getResultList();
+//            if (categoriesDto.isEmpty()) {
+//                throw new IllegalArgumentException("There is no Category in here");
+//            }
+            return categoriesDto;
         }
-//        return List.of();
     }
+
+    public void createCategory(CategoryRequestDto categoryDto) {
+        boolean checkIsThatTheSameCategory = getCategories().stream()
+                .anyMatch(categoryDto1 -> categoryDto.categoryName().equals(categoryDto1.name()));
+        if (checkIsThatTheSameCategory) {
+            throw new IllegalArgumentException("You have already send the same category in to db");
+        }
+        Transaction tx = null;
+        Category category = null;
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            category = new Category(categoryDto.categoryName());
+            session.persist("Category_Management", category);
+            tx.commit();
+        } catch (Exception ex) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            log.error("Transaction Error");
+            ex.printStackTrace();
+        }
+        System.out.println("category = " + category);
+    }
+
+    public void createCategories(List<CategoryRequestDto> categoryRequestDtos) {
+        System.out.println("create categories executed");
+        Map<String, Long> frequencyMap = categoryRequestDtos.stream()
+                .collect(Collectors.groupingBy(
+                        dto -> dto.categoryName().toLowerCase(),
+                        Collectors.counting()
+                ));
+
+        // Step 2: Check for duplicates within input DTOs
+        String duplicatedElements = categoryRequestDtos.stream()
+                .map(CategoryRequestDto::categoryName)
+                .filter(name -> frequencyMap.get(name.toLowerCase()) > 1)
+                .collect(Collectors.joining(", "));
+        System.out.println("duplicated elements found nothing or not");
+
+        if (!duplicatedElements.isBlank()) {
+            throw new IllegalArgumentException("There are duplicated categories in the input: " + duplicatedElements);
+        }
+
+        System.out.println("duplicated element is not blank");
+
+        // Step 3: Get lowercase category names from input DTOs
+        List<String> categoryNameRequestDtosList = categoryRequestDtos.stream()
+                .map(categoryRequestDto -> categoryRequestDto.categoryName().toLowerCase())
+                .toList();
+
+        System.out.println("found the category name request dtos list");
+        // Step 4: Find duplicates between input DTOs and database categories
+//        boolean isDbDuplicates = getCategories().stream()
+//                .anyMatch(name -> name.equals())
+        if (getCategories().size() > 1) {
+            System.out.println("Still one");
+            System.out.println("getCategories().getFirst().name() = " + getCategories().getFirst().name());
+        }
+        for (int i = 0; i < getCategories().size(); i++) {
+            System.out.println("getCategories().get(i).name() = " + getCategories().get(i).name());
+        }
+//        System.out.println("categoryNameRequestDtosList = " + categoryNameRequestDtosList);
+        String dbDuplicates = getCategories().stream()
+                .map(CategoryDto::name)
+                .filter(name -> categoryNameRequestDtosList.contains(name.toLowerCase()))
+                .collect(Collectors.joining(", "));
+
+        // Step 5: Throw exception if duplicates are found in the database
+        System.out.println("dbDuplicates = " + dbDuplicates);
+        System.out.println("found duplicates nothing");
+        if (!dbDuplicates.isBlank()) {
+            throw new IllegalArgumentException("Categories already exist in the database: " + dbDuplicates);
+        }
+
+//        createCategories(categoryRequestDtos);
+        Transaction tx = null;
+        List<Category> categories = List.of();
+            System.out.println("transaction executed");
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            categories = categoryRequestDtos.stream()
+                    .map(s -> new Category(s.categoryName().toLowerCase()))
+                    .toList();
+            System.out.println("categories = " + categories);
+            System.out.println("categories.getFirst().getName() = " + categories.getFirst().getName());
+            System.out.println("start to do transaction");
+            if (categories.size() < 2) {
+                System.out.println("category is less than two");
+                Category category = new Category(categories.getFirst().getName());
+                session.persist("Category_Category_Management", category);
+                tx.commit();
+                return;
+            }
+
+            for (int i = 0; i < categories.size(); i++) {
+                System.out.println("category is two or more");
+                Category category = new Category(categories.get(i).getName());
+                session.persist("Category_Category_Management", category);
+
+            }
+            System.out.println("after persisting category");
+            tx.commit();
+            System.out.println("categories = " + categories);
+        } catch (Exception ex) {
+            log.error("transaction error");
+            if (tx != null) {
+                tx.rollback();
+            }
+            ex.printStackTrace();
+        }
+        System.out.println("categories = " + categories);
+    }
+
 }
-//public class CategoryServiceImpl implements CategoryService {
-//
-//    @Override
-//    public List<CategoryDto> getCategories() {
-//        List<CategoryDto> categoriesDto;
-//
-//        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            TypedQuery<CategoryDto> categoryQuery = session.createQuery("SELECT new com.marketplace.CategoryManagement.api.CategoryDto(" +
-//                    "c.id, c.name) From Category_Management c", CategoryDto.class);
-//            categoriesDto = categoryQuery.getResultList();
-////            if (categoriesDto.isEmpty()) {
-////                throw new IllegalArgumentException("This category hasn't created yet");
-////            }
-//            return categoriesDto;
-//        }
-//    }
-//
-//    @Transactional
-//    public Category saveCategoryTest(Category category) {
-//        Transaction tx = null;
-//        Category category1 = null;
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            tx = session.beginTransaction();
-//            session.persist(category);
-//            tx.commit();
-//        }catch (Exception ex) {
-//            log.error("transaction error");
-//            if (tx != null) {
-//                tx.rollback();
-//            }
-//            ex.printStackTrace();
-//        }
-//        return category;
-//    }
-//
-//    public List<Category> categoryValidatorAndCreateCategories(List<CategoryRequestDto> categoryRequestDtos) {
-//
-//        Map<String, Long> frequencyMap = categoryRequestDtos.stream()
-//                .collect(Collectors.groupingBy(
-//                        dto -> dto.categoryName().toLowerCase(),
-//                        Collectors.counting()
-//                ));
-//
-//        // Step 2: Check for duplicates within input DTOs
-//        String duplicatedElements = categoryRequestDtos.stream()
-//                .map(CategoryRequestDto::categoryName)
-//                .filter(name -> frequencyMap.get(name.toLowerCase()) > 1)
-//                .collect(Collectors.joining(", "));
-//
-//        if (!duplicatedElements.isBlank()) {
-//            throw new IllegalArgumentException("There are duplicated categories in the input: " + duplicatedElements);
-//        }
-//
-//        // Step 3: Get lowercase category names from input DTOs
-//        List<String> categoryNameRequestDtosList = categoryRequestDtos.stream()
-//                .map(categoryRequestDto -> categoryRequestDto.categoryName().toLowerCase())
-//                .toList();
-//
-//        // Step 4: Find duplicates between input DTOs and database categories
-//        String dbDuplicates = getCategories().stream()
-//                .map(CategoryDto::categoryName)
-//                .filter(name -> categoryNameRequestDtosList.contains(name.toLowerCase()))
-//                .collect(Collectors.joining(", "));
-//
-//        // Step 5: Throw exception if duplicates are found in the database
-//        if (!dbDuplicates.isBlank()) {
-//            throw new IllegalArgumentException("Categories already exist in the database: " + dbDuplicates);
-//        }
-//
-////        createCategories(categoryRequestDtos);
-//        Transaction tx = null;
-//        List<Category> categories = List.of();
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            tx = session.beginTransaction();
-//            categories = categoryRequestDtos.stream()
-//                    .map(s -> new Category(s.categoryName().toLowerCase()))
-//                    .toList();
-//            System.out.println("categories = " + categories);
-//            session.persist("Category_Management", categories);
-//
-//            tx.commit();
-//            return categories;
-//        } catch (Exception ex) {
-//            log.error("transaction error");
-//            if (tx != null) {
-//                tx.rollback();
-//            }
-//            ex.printStackTrace();
-//        }
-//        return categories;
-//    }
-//
-////    public List<Category> findAllCategory() {
-////        List<Category> categories;
-////
-////        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-////            TypedQuery<Category> query = session.createQuery("FROM Category_Management", Category.class);
-////            categories = query.getResultList();
-////            if (categories.isEmpty()) {
-////                throw new ResourceNotFoundException("There is no categories");
-////            }
-////            System.out.println("categories = " + categories);
-////        }
-////        return categories;
-////    }
-//
-////    @Override
-////    public void createCategories(List<CategoryRequestDto> categoryRequestDtos) {
-////        System.out.println("create categories executed");
-////        Transaction tx = null;
-////
-////        if (categoryRequestDtos.size() < 2) {
-////            throw new IllegalArgumentException("You should go into another categories");
-//////                tx.commit();
-////        }
-////        categoryValidator(categoryRequestDtos);
-////
-////        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-////            System.out.println("try executed");
-////
-////            List<Category> categories = categoryRequestDtos.stream().map(s -> {
-////                if (s.categoryName().isBlank()) {
-////                    throw new IllegalArgumentException("The category can't be empty");
-////                }
-////                return new Category(s.categoryName());
-////
-////            }).toList();
-////            System.out.println("categories = " + categories);
-////            tx = session.beginTransaction();
-////            session.save(categories);
-////
-////            tx.commit();
-////        } catch (Exception ex) {
-////            if (tx != null) {
-////                tx.rollback();
-////            }
-////            log.error("Transaction Error");
-////            ex.printStackTrace();
-////        }
-////    }
-//
-//    public Category createCategory(CategoryRequestDto categoryDto) {
-//        boolean checkIsThatTheSameCategory = getCategories().stream()
-//                .anyMatch(categoryDto1 -> categoryDto.categoryName().equals(categoryDto1.categoryName()));
-//        if (checkIsThatTheSameCategory) {
-//            throw new IllegalArgumentException("You have already send the same category in to db");
-//        }
-//        Transaction tx = null;
-//        Category category = null;
-//        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            tx = session.beginTransaction();
-////            Category category = Category.builder()
-////                    .name(categoryDto.categoryName())
-//////                    .createdAt(LocalDateTime.now())
-////                    .build();
-//            category = new Category(categoryDto.categoryName());
-//            session.persist("Category_Management", category);
-//            tx.commit();
-//        } catch (Exception ex) {
-//            if (tx != null) {
-//                tx.rollback();
-//            }
-//            log.error("Transaction Error");
-//            ex.printStackTrace();
-//        }
-//        return category;
-//    }
-//
-//}

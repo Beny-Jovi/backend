@@ -116,14 +116,14 @@ public class ProductDaoTest {
         String storeName = "Test Store";
         Store savedStore = storeService.saveStoreTest(storeName);
         String categoryName = "test_category";
+        String subCategoryName = "sub_category_test";
 
         Category savedCategory = categoryService.saveCategoryTest(categoryName);
-        SubCategory savedSubCategory = subCategoryService.createSubCategoryTest(categoryName, savedCategory);
+        SubCategory savedSubCategory = subCategoryService.createSubCategoryTest(savedCategory, subCategoryName);
 
         ProductReqDto productDto = new ProductReqDto(
                 categoryName,
-//                SubCategory.SubCategoryEnum.DISC,
-                savedSubCategory.getName(),
+                subCategoryName,
                 1,
                 "Test Disc",
                 Disc.ProductConditionEnum.NEW,
@@ -139,17 +139,17 @@ public class ProductDaoTest {
 
         assertThat(savedProduct.getStore().getName()).isEqualTo(storeName);
         // Optional: Additional assertions for robustness
-        assertThat(savedProduct.getSubCategory().getName()).isEqualTo(SubCategory.SubCategoryEnum.DISC);
+        assertThat(savedProduct.getSubCategory().getSubCategoryName()).isEqualTo(subCategoryName);
 
 //        verify the sub category
         assertThat(savedSubCategory.getCategory().getName()).isEqualTo(categoryName);
-        assertThat(savedSubCategory.getName()).isEqualTo(SubCategory.SubCategoryEnum.DISC);
+        assertThat(savedSubCategory.getSubCategoryName()).isEqualTo(subCategoryName);
         assertThat(savedSubCategory.getProducts()).isNotNull();
 
     //        verify the product
         assertThat(savedProduct).isNotNull();
         assertThat(savedProduct.getStore().getName()).isEqualTo(storeName);
-        assertThat(savedProduct.getSubCategory().getName()).isEqualTo(SubCategory.SubCategoryEnum.DISC);
+        assertThat(savedProduct.getSubCategory().getSubCategoryName()).isEqualTo(subCategoryName);
         assertThat(savedProduct.getOrderMinimum()).isGreaterThanOrEqualTo(1);
     }
 

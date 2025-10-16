@@ -34,7 +34,7 @@
         </set>
 
         <many-to-one name="category" column="category_id" entity-name="Product_Category" not-null="true" />
-        <property name="name" column="name" not-null="true" />
+        <property name="subCategoryName" column="sub_category_name" length="80" not-null="true" type="string" />
     </class>
 
     <class name = "com.marketplace.DiscProductManagement.Domain.Store" table = "`Stores`">

@@ -20,31 +20,18 @@ public class SubCategory {
     )
     private String id;
 
-    public enum SubCategoryEnum {
-        DISC
-    }
+    @Column(name = "sub_category_name", length = 80, nullable = false)
+    private String subCategoryName;
 
-    @Column(name = "name", length = 80, nullable = false)
-    private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false, referencedColumnName = "id")
     private Category category;
 
     @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Product> products = new HashSet<>();
 
-    public void addProduct(Product product) {
-        System.out.println("this.getProducts() = " + this.getProducts());
-        if (products == null) {
-            System.out.println("products is null! Initializing...");
-            products = new HashSet<>();
-        }
-        products.add(product);
-    }
-
-    public SubCategory(String name, Category category) {
-        setName(name);
+    public SubCategory(String subCategoryName, Category category) {
+        setSubCategoryName(subCategoryName);
         setCategory(category);
     }
 }

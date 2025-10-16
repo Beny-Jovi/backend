@@ -5,7 +5,7 @@ import com.marketplace.Auth.api.UserLoginDto;
 import com.marketplace.Auth.api.UserMapper;
 import com.marketplace.Exception.ResourceNotFoundException;
 import com.marketplace.Util.HibernateUtil;
-import jakarta.persistence.*;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -26,20 +26,13 @@ import java.util.Set;
 @Service("CommonUserService")
 public class UserService {
 
-    @PersistenceUnit(name = "my_persistence_unit")
-    private EntityManagerFactory entityManagerFactory;
-
     private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserRepository userRepository;
 
     public Boolean checkUserByEmail(String email) {
         boolean isThereAnyUserWithTheEmail;
         System.out.println("check user by email method start");
-        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()){
-            TypedQuery<Long> query = entityManager.createQuery("SELECT COUNT(u) FROM User_Auth u WHERE u.email = :user_email", Long.class);
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            TypedQuery<Long> query = session.createQuery("SELECT COUNT(u) FROM User_Auth u WHERE u.email = :user_email", Long.class);
             query.setParameter("user_email", email);
             Long count = query.getSingleResult();
             isThereAnyUserWithTheEmail = count > 0;
@@ -49,55 +42,38 @@ public class UserService {
 
     @Transactional
     public User createUserAccount(Role role, UserMapper mapper, UserAccountCreationDTO accountDTO) {
-        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
+        Transaction tx = null;
+        User user = null;
+        System.out.println("create user account executed");
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            user = mapper.toUserAccount(accountDTO);
+            user.addRole(role);
 
-        transaction.begin();
-        User user = mapper.toUserAccount(accountDTO);
-        Set<Role> roles = new HashSet<>();
-        roles.add(role);
-        System.out.println("roles = " + roles);
-        Set<User> users = new HashSet<>();
-        users.add(user);
-        System.out.println("users = " + users);
-        role.setUsers(users);
-        entityManager.persist(user);
-        entityManager.close();
+            Set<User> users = new HashSet<>();
+            users.add(user);
+            role.setUsers(users);
+            System.out.println("user = " + user);
+            tx = session.beginTransaction();
+            session.save(user);
+            tx.commit();
+            return user;
+        } catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+        }
         return user;
-//        Transaction tx = null;
-//        User user = null;
-//        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-//            user = mapper.toUserAccount(accountDTO);
-//            user.addRole(role);
-//
-//            Set<User> users = new HashSet<>();
-//            users.add(user);
-//            role.setUsers(users);
-//            System.out.println("user = " + user);
-//            tx = session.beginTransaction();
-//            session.save(user);
-//            tx.commit();
-//            return user;
-//        } catch (Exception e) {
-//            if (tx != null) {
-//                tx.rollback();
-//            }
-//            e.printStackTrace();
-//        }
-//        return user;
     }
 
-
     public User getUserByEmail(String email) {
-        User user;
+        User user = null;
         System.out.println("get user by email executed");
-        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
-        entityManagerFactory = Persistence.createEntityManagerFactory("my_persistence_unit");
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             System.out.println("get user by email session executed");
-            TypedQuery<User> query = entityManager.createQuery("From User_Auth U LEFT JOIN FETCH U.accountRoles WHERE U.email =:user_email", User.class);
+            TypedQuery<User> query = session.createQuery("From User_Auth U LEFT JOIN FETCH U.accountRoles WHERE U.email =:user_email", User.class);
             query.setParameter("user_email", email);
+            System.out.println("query = " + query);
             user = query.getSingleResult();
 //            System.out.println("users.getFirst().getEmail() = " + users.getFirst().getEmail());
             if (user == null) {

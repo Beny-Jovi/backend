@@ -28,11 +28,6 @@ public class Category {
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<SubCategory> subCategories = new HashSet<SubCategory>();
 
-    public void addSubCategory(SubCategory subCategory) {
-        System.out.println("this.getSubCategories() = " + this.getSubCategories());
-        subCategories.add(subCategory);
-    }
-
     public Category(String name) {
         this.setName(name);
     }

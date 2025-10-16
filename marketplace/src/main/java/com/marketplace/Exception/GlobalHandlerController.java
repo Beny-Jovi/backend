@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import jakarta.servlet.ServletException;
 import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
-import org.h2.jdbc.JdbcSQLDataException;
 import org.hibernate.LazyInitializationException;
 import org.hibernate.MappingException;
 import org.hibernate.TransactionException;
@@ -198,12 +197,12 @@ public class GlobalHandlerController {
         return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(JdbcSQLDataException.class)
-    public ResponseEntity<Object> handleJDBC_DataException(JdbcSQLDataException ex) {
-        log.error("Data conversion error converting: {}", ex.getMessage());
-        log.error("this is what is cause", ex.getCause());
-        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler(JdbcSQLDataException.class)
+//    public ResponseEntity<Object> handleJDBC_DataException(JdbcSQLDataException ex) {
+//        log.error("Data conversion error converting: {}", ex.getMessage());
+//        log.error("this is what is cause", ex.getCause());
+//        return new ResponseEntity<>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     @ExceptionHandler(LazyInitializationException.class)
     public ResponseEntity<Object> handleLazyInitializeException(LazyInitializationException ex) {

@@ -23,26 +23,29 @@ public class CategoryController {
     public ResponseEntity<Object> getAllCategories() {
         List<CategoryDto> categoryDtos = categoryService.getCategories();
         if (categoryDtos.isEmpty()) {
-            throw new IllegalArgumentException("Haven't created yet");
+            throw new IllegalArgumentException("There is no category yet");
         }
         return ResponseHandler.generateResponse("", HttpStatus.OK, categoryDtos);
     }
 
-    @PostMapping("admin/api/categories")
-    public ResponseEntity<Object> createCategory(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
-//        categoryService.createCategories(categoryRequestDto);
-        categoryService.createCategory(categoryRequestDto);
-        return ResponseHandler.generateResponse("Category created", HttpStatus.CREATED, "");
-    }
+//    @PostMapping("admin/api/categories")
+//    public ResponseEntity<Object> createCategory(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
+////        categoryService.createCategories(categoryRequestDto);
+//        categoryService.createCategory(categoryRequestDto);
+//        return ResponseHandler.generateResponse("Category created", HttpStatus.CREATED, "");
+//    }
 
-    @PostMapping("admin/api/many_categories")
-    public ResponseEntity<Object> createCategories(@RequestBody @Valid List<CategoryRequestDto> categoryDtos) {
-//        categoryService.createCategories(categoryDtos);
-//        categoryService.getCategory(categoryDtos);
-//        categoryService.categoryValidatorAndCreateCategories(categoryDtos);
+//    @PostMapping("admin/api/categories")
+//    public ResponseEntity<Object> createCategory(@RequestBody CategoryRequestDto categoryRequestDto) {
+//        categoryService.createCategory(categoryRequestDto);
+//        return ResponseHandler.generateResponse("Category created", HttpStatus.CREATED, "");
+//    }
+
+    @PostMapping("admin/api/categories")
+    public ResponseEntity<Object> createCategories(@RequestBody List<CategoryRequestDto> categoryDtos) {
+        categoryService.createCategories(categoryDtos);
 //        categoryService.findAllCategory();
         return ResponseHandler.generateResponse("Category created", HttpStatus.CREATED, "");
 
     }
-
 }

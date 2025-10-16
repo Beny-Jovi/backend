@@ -1,19 +1,21 @@
-package com.marketplace.CategoryManagement.domain;
+package com.marketplace.Sub_Category_Management.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity(name = "Category_Category_Management")
+@Entity(name = "Category_Sub_Category_Management")
 @Table(name = "`Categories`")
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Category {
 
     @SuppressWarnings("deprecation")
@@ -29,13 +31,15 @@ public class Category {
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "isDeleted")
     private Boolean isDeleted;
 
-    public Category(String name) {
-        setName(name);
-    }
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<SubCategory> subCategories = new HashSet<>();
 
+    public Category(Set<SubCategory> subCategories) {
+        setSubCategories(subCategories);
+    }
 }

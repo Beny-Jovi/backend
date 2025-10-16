@@ -30,7 +30,7 @@ public class AuthController {
     private final UserService userService;
     private final UserMapper mapper;
     private final RoleService roleService;
-//    private final AuthService authService;
+    private final AuthService authService;
 
     @Operation(summary = "User can be register in here")
     @ApiResponses(value = {
@@ -71,22 +71,21 @@ public class AuthController {
         if (token != null) {
             return ResponseEntity.ok("You are already logged in");
         }
-//        TokenDto authenticatedUser = authService.authenticateUser(userLoginDto);
-//        String jwtToken = jwtService.generateToken(authenticatedUser);
+        TokenDto authenticatedUser = authService.authenticateUser(userLoginDto);
 
-//        Cookie tokenCookie = new Cookie("token", authenticatedUser.userToken());
+        Cookie tokenCookie = new Cookie("token", authenticatedUser.userToken());
 
 //        Adjust cookie later in production
-//        tokenCookie.setMaxAge(3600);
-//        tokenCookie.setSecure(true);
-//        tokenCookie.setPath("/");
-//        response.addCookie(tokenCookie);
+        tokenCookie.setMaxAge(3600);
+        tokenCookie.setSecure(true);
+        tokenCookie.setPath("/");
+        response.addCookie(tokenCookie);
 
-//        Cookie refreshTokenCookie = new Cookie("refresh_token", authenticatedUser.refreshToken());
-//        refreshTokenCookie.setMaxAge(360000);
-//        refreshTokenCookie.setSecure(true);
-//        refreshTokenCookie.setPath("/");
-//        response.addCookie(refreshTokenCookie);
+        Cookie refreshTokenCookie = new Cookie("refresh_token", authenticatedUser.refreshToken());
+        refreshTokenCookie.setMaxAge(360000);
+        refreshTokenCookie.setSecure(true);
+        refreshTokenCookie.setPath("/");
+        response.addCookie(refreshTokenCookie);
 
         return ResponseHandler.generateResponse("Login Successfully", HttpStatus.CREATED, "");
     }

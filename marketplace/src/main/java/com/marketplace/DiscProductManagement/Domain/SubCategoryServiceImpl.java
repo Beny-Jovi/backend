@@ -16,7 +16,7 @@ import java.util.List;
 public class SubCategoryServiceImpl implements SubCategoryService{
     @Override
     @Transactional
-    public SubCategory getSubCategory(String subCategoryName, Category category) {
+    public SubCategory getSubCategory(Category category, String subCategoryName) {
         Transaction tx = null;
         SubCategory subCategory = null;
 
@@ -35,13 +35,13 @@ public class SubCategoryServiceImpl implements SubCategoryService{
         return subCategory;
     }
 
-    public SubCategory createSubCategoryTest(String categoryName, Category category) {
+    public SubCategory createSubCategoryTest(Category category, String subCategoryName) {
         Transaction tx = null;
         SubCategory subCategory = null;
 
         try(Session session = HibernateUtil.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            subCategory = new SubCategory(categoryName, category);
+            subCategory = new SubCategory(subCategoryName, category);
             session.persist(subCategory);
             tx.commit();
             return subCategory;

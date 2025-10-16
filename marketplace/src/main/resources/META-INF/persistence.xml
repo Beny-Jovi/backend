@@ -7,18 +7,13 @@
     <persistence-unit name="my_persistence_unit">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 <!--        <jta-data-source></jta-data-source>-->
-<!--        <jta-data-source>java:global/jdbc/default</jta-data-source>-->
-        <class>com.marketplace.CategoryManagement.domain.Category</class>
-        <class>com.marketplace.SubCategoryManagement.domain.Category</class>
-        <class>com.marketplace.SubCategoryManagement.domain.SubCategory</class>
-        <class>com.marketplace.Auth.domain.User</class>
-        <class>com.marketplace.Auth.domain.Role</class>
+<!--        <class>com.marketplace.CategoryManagement.domain.Category</class>-->
+<!--        <mapping-file>Category_orm.xml</mapping-file>-->
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
-
         <properties>
             <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/seller"/>
             <property name="jakarta.persistence.jdbc.user" value="postgres"/>
-            <property name="jakarta.persistence.jdbc.password" value=""/>
+            <property name="jakarta.persistence.jdbc.password" value="josi123"/>
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>

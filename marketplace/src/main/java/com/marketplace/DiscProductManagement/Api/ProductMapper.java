@@ -50,7 +50,7 @@ public class ProductMapper {
         System.out.println("converted product to dto = " + product);
         String productId = product.getId();
         String productCategory = product.getSubCategory().getCategory().getName();
-        String productSubCategory = product.getSubCategory().getName();
+        String productSubCategory = product.getSubCategory().getSubCategoryName();
         Disc.UnitOfProductEnum unitOfProduct = product.getDisc().getUnitOfProduct();
         String discTitle = product.getDisc().getTitle();
         Disc.ProductConditionEnum productCondition = product.getDisc().getProductCondition();
